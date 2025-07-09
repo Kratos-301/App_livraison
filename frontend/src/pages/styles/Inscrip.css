@@ -1,0 +1,180 @@
+*{
+    text-decoration: none;
+    list-style: none;
+}
+
+
+/* html, body {
+  height: 100%;    
+  margin: 0;         
+} */
+
+
+
+.all{
+    display: flex;            
+    justify-content: center;
+    height: 100vh; 
+    align-items: center;
+    flex-direction: column;     
+}
+.all h2{
+    text-align: center;
+    color: #ffffff;
+}
+.all h2 span{
+    color: #f98c06;
+    font-size: 35px;
+}
+.all .giga-form{
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+.lpm{
+    width: 98%;
+    height: 99%;
+}
+.all .all-form{
+    /* border-radius: 5px 5px 5px 0; */
+    width: 430px;
+    height: 400px;
+    background-color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    /* box-shadow: 5px 10px 8px #333; */
+}
+.meute{
+    display: flex;
+    justify-content: space-around;
+}
+.insc{
+    background-color: #b01d1d;
+    position: absolute;
+    padding: 20px;
+    border-radius: 50%;
+    top: -71px;
+    right: -74px;
+}
+.all-form a{
+    background-color: #ffffffcb;
+    position: absolute;
+    padding: 40px;
+    border-radius: 50%;
+    top: -61px;
+    right: -104px;
+    color: rgb(0, 0, 0);
+    font-weight: 800;
+    font-size: 25px;
+    text-decoration: none;
+    visibility: hidden;
+}
+.all h1{
+    color: #1939c78e;
+    text-align: center;
+    margin-top: 15px;
+}
+.btn1, .btn2, .btn14{
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-color: transparent;
+}
+
+.btn1 input, .btn14 input{
+    border-top: none;
+    border-left: 5px solid #333;
+    border-right: none;
+    border-bottom: 2px solid #333;
+    outline: none;
+    margin: 10px 0;
+    padding: 5px 40px;
+    background-color: #2f73d893;
+    width: 180px;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 25px 0 ;
+    font-weight: 600;
+    text-align: center;
+} 
+.btn14 input{
+    width: 300px;
+}
+#nom{
+    width: 300px;
+}
+.meute .bi{
+    position: absolute;
+    left: 15px; 
+    top: 35px;
+    font-size: 25px;
+}
+.seul{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.seul #bi{
+    position: absolute;
+    left: 15px;
+    top: 35px;
+    font-size: 25px;
+}
+.btn2 input{
+    padding: 5px;
+    width: 120px;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    margin-top: 15px;
+    background-color: #0122a8c1;
+ 
+}
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+.indic{
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+.giga #droite, .giga #gauche{
+    z-index: 10;
+    border: none;
+    font-weight: 800;
+    color: #2f73d893;
+    font-size: 25px;
+    padding: 5px 15px;
+    background-color: #ffffff;
+    border-radius: 15px;
+}
+.giga-form #gauche{
+    right: 130px;
+} 
+.giga-form #droite{
+    left: 130px;
+}
+.all-form2{ 
+    padding: 30px;
+    width: 432px;
+    height: 400px;
+    background-color: #333;
+    z-index: 3;
+    position: absolute;
+    transform: translateX(50%);
+}
+ .gauche{ 
+    transform: translateX(-50%);
+    transition: 1s;
+}
+ .droite{
+    transform: translateX(50%);
+    transition: 1s;
+}

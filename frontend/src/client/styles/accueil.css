@@ -1,0 +1,106 @@
+
+.all-formAcc{
+    background-color: #f6efef !important;
+    padding: 0px;
+    max-height: 400px;
+    max-width: 700px;
+}
+.livreur-card{
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    background-color: #fa8c1655;
+    border-radius: 10px;
+    height: 80px;
+    padding: 10px;
+    margin: 10px;
+}
+.livreur-card span{
+    font-size: 18px;
+    margin: 0 15px 0 15px;
+}
+.livreur-card img{
+    width: 95px;
+    height: 85px;
+    margin-left: 0;
+}
+.livreur-card .tgfr {
+    visibility: hidden;
+    display: none;
+    opacity: 0;
+}
+#chute{
+    visibility: hidden;
+    display: none;
+    opacity: 0;
+}
+.livreur-card .tgf {
+    width: 110px;
+    height: 25px;
+}
+
+
+
+
+
+.livreur-card.disponible {
+  border: 20px solid green;
+}
+.livreur-card.occupe {
+  border: 20px solid red;
+  opacity: 0.8;
+}
+
+
+.status.online {
+  color: green;
+  font-weight: bold;
+}
+
+.status.offline {
+  color: red;
+  font-weight: bold;
+}
+
+
+
+
+.jkl{
+    display: flex;
+    flex-direction: column; 
+    align-items: center;
+} 
+.jkl input{
+    outline: none;
+    border-radius: 10px;
+    color: black;
+}
+.id-client{
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px; 
+}
+.id-client .btn-8{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+.position{
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 15px;
+}
+.position .btn-4{
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+
+
+

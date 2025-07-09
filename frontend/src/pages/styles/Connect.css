@@ -1,0 +1,187 @@
+.connect-page{
+    height: 100vh;
+    background: url(../../../public/assets/accueil-fond/5197214.jpg) center ;
+    background-size: cover;
+
+}
+.header-connect{
+    padding-top: 10px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 25px;
+}
+.header-connect a{
+    padding: 10px 25px;
+    background-color: #f98c06;
+    color: #ffffff;
+    font-weight: 700;
+    border-radius: 10px;
+}
+.connect-page .giga{
+    display: flex;
+    justify-content: center;
+    height: 92%;
+    align-items: center;
+    flex-direction: column;
+}
+.connect-page h2{
+    text-align: center;
+    color: #ffffff;
+}
+.connect-page h2 span{
+    color: #f98c06;
+    font-size: 32px;
+}
+.connect-page .giga-form{
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    position: relative;
+}
+.connect-page .lpm{
+    width: 98%;
+    height: 99%;
+}
+.connect-page .all-form{
+    width: 380px;
+    height: 350px;
+    background-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+.connect-page .meute{
+    display: flex;
+    justify-content: space-around;
+}
+.connect-page .insc{
+    background-color: #f2f2f2;
+    position: absolute;
+    padding: 20px;
+    border-radius: 50%;
+    top: -71px;
+    right: -74px;
+}
+.connect-page .all-form a{
+    background-color: #ffffffcb;
+    position: absolute;
+    padding: 40px;
+    border-radius: 50%;
+    top: -61px;
+    right: -104px;
+    color: rgb(63, 56, 56);
+    font-weight: 800;
+    font-size: 25px;
+    text-decoration: none;
+    visibility: hidden;
+}
+.connect-page h1{
+    color: #1939c78e;
+    text-align: center;
+    margin-top: 15px;
+}
+.connect-page .btn1, .connect-page .btn2, .connect-page .btn14{
+    flex-direction: column;
+    display: flex;
+    align-items: center;
+    position: relative;
+    background-color: transparent;
+}
+
+.connect-page .btn1 input, .connect-page .btn14 input{
+    border-top: none;
+    border-left: 5px solid #333;
+    border-right: none;
+    border-bottom: 2px solid #333;
+    outline: none;
+    margin: 10px 0;
+    padding: 5px 40px;
+    background-color: #2f73d893;
+    width: 180px;
+    color: #fff;
+    font-size: 16px;
+    border-radius: 25px 0 ;
+    font-weight: 600;
+    text-align: center;
+} 
+.connect-page .btn14 input{
+    width: 300px;
+}
+#nom{
+    width: 300px;
+}
+.connect-page .meute .connect-page .bi{
+    position: absolute;
+    left: 15px; 
+    top: 35px;
+    font-size: 25px;
+}
+.connect-page .seul{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+.connect-page .seul #bi{
+    position: absolute;
+    left: 15px;
+    top: 35px;
+    font-size: 25px;
+}
+.connect-page .btn2 input{
+    padding: 5px;
+    width: 120px;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    margin-top: 15px;
+    background-color: #0122a8c1;
+ 
+}
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+/* ------------- Deuxieme Formulaire ----------------- */
+.connect-page .giga .indic{
+    display: flex;
+    width: 50%;
+}
+.connect-page  #droite, .connect-page  #gauche{
+    z-index: 10;
+    border: none;
+    font-weight: 800;
+    color: #2f73d893;
+    font-size: 25px;
+    padding: 5px 15px;
+    background-color: #ffffff;
+    border-radius: 15px;
+}
+.connect-page .giga-form #gauche{
+    right: 130px;
+} 
+.connect-page .giga-form #droite{
+    left: 130px;
+} 
+.connect-page .Couverture{ 
+    padding: 30px;
+    width: 382px;
+    height: 350px;
+    background-color: #000000;
+    color: #ffffff;
+    
+    z-index: 30;
+    position: absolute;
+    transform: translateX(50%);
+}
+ .connect-page .gauche{ 
+    transform: translateX(-50%);
+    transition: .1s;
+}
+ .connect-page .droite{
+    transform: translateX(50%);
+    transition: .1s;
+} 

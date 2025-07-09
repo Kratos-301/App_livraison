@@ -1,0 +1,103 @@
+.acc-all{
+    background: url(../../../public/assets/accueil-fond/5197214.jpg) center;
+    background-size: cover;
+}
+.acc-header{
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.acc-header .insc-conn{
+    display: flex;
+    align-items: center;
+}
+
+.acc-header .insc-conn a {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  z-index: 5;
+  background: url(../../../public/assets/fond-login/spirale-de-montagne-violette-fluide-une-imagination-brillante-generee-par-l-ia.jpg) center center / cover no-repeat;
+  color: rgb(255, 255, 255);
+  font-weight: 700;
+  padding: 10px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  margin: 0 10px;
+  animation: zoomBg 6s ease-in-out infinite;
+  text-decoration: none;
+}
+
+@keyframes zoomBg {
+    0% {
+        background-size: 100%;
+        
+    }
+    50% {
+        background-size: 180%;
+        transform: rotateX('360');
+    }
+    100% {
+        background-size: 100%;
+    }
+}
+
+.acc-secondo{
+    height: 400px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+
+}
+.acc-secondo h3{
+    font-size: 50px;
+    color: rgb(0, 0, 0);
+    font-weight: 700;
+}
+.acc-secondo span{
+    color: rgb(255, 255, 255);
+}
+.acc-secondo p{
+    color: rgb(0, 0, 0);
+    margin-left: 40px;
+    font-weight: 700;
+    text-align: center;
+    font-size: 24px;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.acc-secondo img{
+    height: 500px;
+    z-index: 4;
+}
+
+.acc-parlage{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 180px;
+}
+.acc-parlage .atouts h3, .acc-parlage .mission h3, .acc-parlage .paiement h3, .acc-parlage .nos-services h3{
+    text-align: center;
+    font-weight: 700;
+    font-size: 25px;
+}
+.acc-parlage div{
+    background-color: rgb(255, 255, 254);
+    padding: 10px;
+    height: 155px;
+    z-index: 3;
+    border-radius: 10px;
+    box-shadow: 2px 5px 3px #dc5c25;
+}
+
+.footer{
+ 
+}
+.footer h2{
+    text-align: center;
+}
+.footer .fotern{
+    display: flex;
+    justify-content: space-around;
+}
