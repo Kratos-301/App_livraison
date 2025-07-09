@@ -1,0 +1,14 @@
+# Node.js
+node_modules/
+.env
+*.log
+dist/
+build/
+
+# Mac / Windows
+.DS_Store
+Thumbs.db
+
+# Autres
+*.zip
+*.rar
