@@ -4,20 +4,54 @@
     background-size: cover;
 
 }
-.header-connect{
-    padding-top: 10px;
+.acc-header{
+    background-color: #dc5c25;
+    height: 80px;
     display: flex;
-    justify-content: space-around;
     align-items: center;
-    font-size: 25px;
+    justify-content: space-between;
 }
-.header-connect a{
-    padding: 10px 25px;
-    background-color: #f98c06;
-    color: #ffffff;
-    font-weight: 700;
-    border-radius: 10px;
+.acc-header .logo {
+    width: 100px;
 }
+.acc-header .logo img{
+    width: 100px;
+}
+.acc-header .insc-conn{
+    display: flex;
+    align-items: center;
+}
+
+.acc-header .insc-conn a {
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+  z-index: 5;
+  background: url(../../../public/assets/fond-login/spirale-de-montagne-violette-fluide-une-imagination-brillante-generee-par-l-ia.jpg) center center / cover no-repeat;
+  color: rgb(255, 255, 255);
+  font-weight: 700;
+  padding: 10px 25px;
+  border-radius: 15px;
+  cursor: pointer;
+  margin: 0 10px;
+  animation: zoomBg 6s ease-in-out infinite;
+  text-decoration: none;
+}
+
+@keyframes zoomBg {
+    0% {
+        background-size: 100%;
+        
+    }
+    50% {
+        background-size: 180%;
+        transform: rotateX('360');
+    }
+    100% {
+        background-size: 100%;
+    }
+}
+
 .connect-page .giga{
     display: flex;
     justify-content: center;
@@ -33,6 +67,11 @@
     color: #f98c06;
     font-size: 32px;
 }
+.connect-page .lpm h1{
+    color: #0000009e;
+    font-size: 37px;
+    margin-bottom: 25px;
+}
 .connect-page .giga-form{
     text-align: center;
     display: flex;
@@ -46,7 +85,7 @@
 .connect-page .all-form{
     width: 380px;
     height: 350px;
-    background-color: #ffffff;
+    background-color: #fefefe53;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -65,7 +104,7 @@
     right: -74px;
 }
 .connect-page .all-form a{
-    background-color: #ffffffcb;
+    background-color: #ffffffd0;
     position: absolute;
     padding: 40px;
     border-radius: 50%;
@@ -80,9 +119,9 @@
 .connect-page h1{
     color: #1939c78e;
     text-align: center;
-    margin-top: 15px;
+    margin-top: 20px;
 }
-.connect-page .btn1, .connect-page .btn2, .connect-page .btn14{
+.connect-page .btn1, .connect-page .btn2, .connect-page .btn14 input{
     flex-direction: column;
     display: flex;
     align-items: center;
@@ -98,24 +137,33 @@
     outline: none;
     margin: 10px 0;
     padding: 5px 40px;
-    background-color: #2f73d893;
-    width: 180px;
-    color: #fff;
+    background-color: transparent;
+    width:220px;
+    color: #000000;
     font-size: 16px;
     border-radius: 25px 0 ;
-    font-weight: 600;
+    font-weight: 700;
     text-align: center;
 } 
+
+
 .connect-page .btn14 input{
-    width: 300px;
+    width: 250px;
 }
-#nom{
-    width: 300px;
+/* #nom{
+    width: 250px;
+} */
+.connect-page .meute{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
 }
-.connect-page .meute .connect-page .bi{
+.connect-page .lpm .bi{
+    color: #213ad9;
     position: absolute;
-    left: 15px; 
-    top: 35px;
+    left: 10px; 
+    top: 10px;
     font-size: 25px;
 }
 .connect-page .seul{
@@ -124,12 +172,12 @@
     align-items: center;
     flex-direction: column;
 }
-.connect-page .seul #bi{
+/* .connect-page .seul .bi{
     position: absolute;
     left: 15px;
     top: 35px;
     font-size: 25px;
-}
+} */
 .connect-page .btn2 input{
     padding: 5px;
     width: 120px;
@@ -140,12 +188,17 @@
     background-color: #0122a8c1;
  
 }
+
+
 /* ------------- Deuxieme Formulaire ----------------- */
 /* ------------- Deuxieme Formulaire ----------------- */
 /* ------------- Deuxieme Formulaire ----------------- */
 /* ------------- Deuxieme Formulaire ----------------- */
 /* ------------- Deuxieme Formulaire ----------------- */
 /* ------------- Deuxieme Formulaire ----------------- */
+
+
+
 .connect-page .giga .indic{
     display: flex;
     width: 50%;

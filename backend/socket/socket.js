@@ -43,7 +43,7 @@ function handleSocket(io) {
       db.query(`
         SELECT id 
         FROM commande 
-        WHERE id_livreur = ? AND statut = 1 AND statut_2 = 1 AND statut_3 = 0 
+        WHERE livreur_id = ? AND statut = 1 AND statut_2 = 1 AND statut_3 = 0 
         LIMIT 1
       `, [livreurId], (err, results) => {
         if (err) {

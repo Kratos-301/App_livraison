@@ -258,13 +258,17 @@ useEffect(() => {
                       <button
                         className="btn btn-success btn-sm"
                         onClick={() => {
-                          axios.post(`http://localhost:3000/api/commande/confirmer/${commande.id}`, {
-                            latitude_li: position?.latitude,
-                            longitude_li: position?.longitude
-                          }, { withCredentials: true })
-                            .then(() => window.location.reload())
-                            .catch(console.error);
-                        }}
+  axios.post(`http://localhost:3000/api/commande/confirmer/${commande.id}`, {
+    latitude_li: position?.latitude,
+    longitude_li: position?.longitude
+  }, { withCredentials: true })
+    .then(() => {
+      axios.get('http://localhost:3000/api/commande/livreurAccueil', { withCredentials: true })
+        .then(res => setCommande(res.data.commande));
+    })
+    .catch(console.error);
+}}
+
                       >
                         Accepter
                       </button>
@@ -280,8 +284,10 @@ useEffect(() => {
                               statut_3: 1,
                               disponibilite: 1
                             }, { withCredentials: true })
-                              .then(() => window.location.reload())
-                              .catch(err => alert("Erreur d'annulation"));
+                              .then(() => {
+        setCommande(null); // ou refetch si besoin
+      })
+      .catch(err => alert("Erreur d'annulation"));
                           }
                         }}
                       >
@@ -315,11 +321,10 @@ useEffect(() => {
                       statut_3: 1,
                       disponibilite: 1
                     }, { withCredentials: true })
-                      .then(() => window.location.reload())
-                      .catch(err => {
-                        alert("Erreur lors de l'annulation.");
-                        console.error(err);
-                      });
+                      .then(() => {
+        setCommande(null); // ou refetch si besoin
+      })
+      .catch(err => alert("Erreur d'annulation"));
                   }
                 }}
               >
@@ -336,7 +341,9 @@ useEffect(() => {
                       statut_3: 0,
                       disponibilite: 1
                     }, { withCredentials: true })
-                      .then(() => window.location.reload())
+                      .then(() =>{
+        setCommande(null); // ou recharger l’état si tu veux
+      })
                       .catch(err => {
                         alert("Erreur lors de la fin.");
                         console.error(err);

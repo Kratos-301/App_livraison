@@ -51,13 +51,15 @@ const Connect = () => {
 
   return (
     <div className="connect-page">
-      <div className="header-connect">
-        <div>
-            <Link to="/">Accueil</Link>
+      <div className='acc-header'>
+        <div className="logo">
+          <Link to="/"><img src="/assets/logo/logo.png" alt="" /></Link>
         </div>
-        <div><h2>Merci de renseigner tout les champs</h2></div>
-        <div>
+
+        <div className='insc-conn'>
+          <div>
             <Link to="/inscrip">Inscription</Link>
+          </div>
         </div>
       </div>
 
@@ -75,10 +77,11 @@ const Connect = () => {
                   <div className="tgh">
                     <div className="seul">
                       <div className="btn14">
-                        <label htmlFor="telephone">Téléphone</label>
-                        <i className="bi bi-envelope-fill"></i>
+                        {/* <label htmlFor="telephone">Téléphone</label> */}
+                        <i className="bi bi-telephone-fill"></i>
                         <input
                           type="tel"
+                          placeholder='Numero de telephone'
                           name="telephone"
                           id="telephone"
                           value={clientData.telephone}
@@ -89,11 +92,12 @@ const Connect = () => {
                     </div>
                     <div className="meute">
                       <div className="btn1">
-                        <label htmlFor="motdepasse">Mot de passe</label>
+                        {/* <label htmlFor="motdepasse">Mot de passe</label> */}
                         <i className="bi bi-lock-fill"></i>
                         <input
                           type="password"
                           name="motdepasse"
+                          placeholder='Mot de passe'
                           id="motdepasse_client"
                           value={clientData.motdepasse}
                           onChange={(e) => setClientData({ ...clientData, motdepasse: e.target.value })}
@@ -102,7 +106,7 @@ const Connect = () => {
                       </div>
                     </div>
                     <div className="btn2">
-                      <input type="submit" value="Connexion" />
+                      <input type="submit" value="Se connecter" />
                     </div>
                   </div>
                 </form>
@@ -115,10 +119,11 @@ const Connect = () => {
                   <div className="tgh">
                     <div className="seul">
                       <div className="btn14">
-                        <label htmlFor="email">Email</label>
+                        {/* <label htmlFor="email">Email</label> */}
                         <i className="bi bi-envelope-fill"></i>
                         <input
                           type="email"
+                          placeholder='Entrez votre email ..'
                           name="email"
                           id="email"
                           value={livreurData.email}
@@ -129,10 +134,11 @@ const Connect = () => {
                     </div>
                     <div className="meute">
                       <div className="btn1">
-                        <label htmlFor="motdepasse">Mot de passe</label>
+                        {/* <label htmlFor="motdepasse">Mot de passe</label> */}
                         <i className="bi bi-lock-fill"></i>
                         <input
                           type="password"
+                          placeholder='Mot de passe'
                           name="motdepasse"
                           id="motdepasse_livreur"
                           value={livreurData.motdepasse}
@@ -142,7 +148,7 @@ const Connect = () => {
                       </div>
                     </div>
                     <div className="btn2">
-                      <input type="submit" value="Connexion" />
+                      <input type="submit" value="Se connecter" />
                     </div>
                   </div>
                 </form>

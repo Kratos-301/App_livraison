@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 import './styles/Inscrip.css'; 
 
 const Inscrip = () => {
@@ -12,6 +13,17 @@ const Inscrip = () => {
 
   return (
     <div className="all">
+      <div className='acc-header'>
+        <div className="logo">
+          <Link to="/"><img src="/assets/logo/logo.png" alt="" /></Link>
+        </div>
+
+        <div className='insc-conn'>
+          <div>
+            <Link to="/connect">Connexion</Link>
+          </div>
+        </div>
+      </div>
       <h2>
         <span>B</span>ienvenue sur la page d'Inscription jjjbjjjjjjgjgjgjgjuug<br />
         Merci <span>de bien remplir les</span> champs

@@ -241,8 +241,9 @@ const Accueil = () => {
       <div className="mes-barre">
         <Header client={client} />
       </div>
-
+      
       <div className="main-content client" id="continer">
+
         {formVisible && (
           <>
             <h1>Bienvenue {client.nom}</h1>
@@ -256,7 +257,7 @@ const Accueil = () => {
                 ) : (
                   livreurs.map(livreur => (
                     <div key={livreur.id} className={`livreur-card ${livreur.est_occupe ? 'occupe' : 'disponible'}`}>
-                      <img src="/assets/img/service-livraison-concept-masque.png" alt="livreur" />
+                      <img src="/assets/img/thygujlokdded.png" alt="livreur" />
                       <span className="livreur-nom">{livreur.nom}</span>
                       <span>{livreur.marque_moto}</span>
                       <div className="commander">
@@ -264,8 +265,10 @@ const Accueil = () => {
                           <span className="statut" style={{ color: 'red' }}>🔴 Occupé</span>
                         ) : (
                           <>
-                            <span className="statut" style={{ color: 'green',  }}>🟢 Dispo</span>
-                            <input type="button" value="Commander" onClick={() => handleGeoSubmit(livreur)} />
+                            <div className="affiju d-flex">
+                              <span className="statut" style={{ color: 'green',  }}>🟢</span>
+                              <input type="button" value="Commander" onClick={() => handleGeoSubmit(livreur)} />
+                            </div>
                             
                           </>
                         )}

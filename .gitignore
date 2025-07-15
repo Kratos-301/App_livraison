@@ -1,14 +1,12 @@
 # Node.js
 node_modules/
 .env
-*.log
-dist/
+
+# React
 build/
+dist/
 
-# Mac / Windows
-.DS_Store
-Thumbs.db
-
-# Autres
-*.zip
-*.rar
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

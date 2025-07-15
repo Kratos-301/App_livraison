@@ -44,10 +44,10 @@
 
 
 .livreur-card.disponible {
-  border: 20px solid green;
+  border: 2px solid green;
 }
 .livreur-card.occupe {
-  border: 20px solid red;
+  border: 2px solid red;
   opacity: 0.8;
 }
 
