@@ -22,11 +22,11 @@ exports.checkDerniereCommandeLivreur = (livreur_id, callback) => {
 exports.insertCommande = (data, callback) => {
   const sql = `
     INSERT INTO commande (
-      client_id, client_nom, client_num,
-      livreur_id, livreur_marque_moto, livreur_nom,
-      longitude, latitude,
-      date_commande, statut, statut_2, statut_3, disponibilite
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW(), ?, ?, ?, ?)
+    client_id, client_nom, client_num,
+    livreur_id, livreur_marque_moto, livreur_nom,
+    longitude, latitude,
+    statut, statut_2, statut_3, disponibilite
+  ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
   db.query(sql, data, callback);
 };
@@ -79,8 +79,26 @@ exports.annulerCommande = (id, callback) => {
 };
 
 exports.terminerCommande = (id, callback) => {
-  db.query(`UPDATE commande SET statut = '0', statut_2 = '0', statut_3 = '0' , disponibilite = '1' WHERE id = ? `, [id], callback);
+  console.log("Mise à jour de la commande", id);
+  
+  db.query(`UPDATE commande SET 
+    statut = 2,
+    statut_2 = 2,
+    statut_3 = 2,
+    passation = 'Engager'
+    WHERE id = ?`, [id], callback);
 };
+
+exports.finiCommande = (id, disponibilite, passation, actif, callback) => {
+  console.log("Mise à jour de la commande", id);
+  
+  db.query(`UPDATE commande SET 
+    disponibilite = ?,
+    passation = ?,
+    actif = ?
+    WHERE id = ?`, [disponibilite, passation, actif, id], callback);
+};
+
 
 exports.confirmerCommande = (id, lat, lon, callback) => {
   db.query(`
@@ -89,6 +107,7 @@ exports.confirmerCommande = (id, lat, lon, callback) => {
     statut_2 = 1,
     statut_3 = 0,
     disponibilite = 0 ,
+    passation = 'PasEncore',
     latitude_li = ?, longitude_li = ?
     WHERE id = ?
   `, [lat, lon, id], callback);

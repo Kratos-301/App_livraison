@@ -122,7 +122,7 @@ exports.creerCommande = (req, res) => {
         longitude, latitude,
         statut, statut_2, statut_3, disponibilite
       ];
-
+      
       model.insertCommande(data, (err, result) => {
         if (err) return res.status(500).json({ success: false, message: 'Erreur lors de l’enregistrement' });
 
@@ -202,8 +202,32 @@ exports.terminerCommandeLivreur = (req, res) => {
 
     model.getCommandeById(id, (err2, commande) => {
       if (!err2 && commande) {
-        io.emit('CommandeTerminer', { livreurId: commande.livreur_id });
-        io.to(`cmd_${id}`).emit('update', { id, type: 'annulation' });
+        io.emit('livreurLibre', { livreurId: commande.livreur_id });
+        io.to(`cmd_${id}`).emit('update', { id, type: 'arrive' });
+        io.emit('CommandeTerminer', {
+          id,
+          client_id: commande.client_id,
+          livreur_id: commande.livreur_id
+        });
+      }
+    });
+
+    return res.json({ success: true, message: 'Commande Terminer' });
+  });
+};
+
+
+exports.finiCommandeLivreur = (req, res) => {
+  const id = req.params.id;
+  const { disponibilite, passation, actif } = req.body;
+
+  model.finiCommande(id, disponibilite, passation, actif, (err) => {
+    if (err) return res.status(500).json({ success: false, message: 'Erreur annulation' });
+
+    model.getCommandeById(id, (err2, commande) => {
+      if (!err2 && commande) {
+        io.emit('livreurLibre', { livreurId: commande.livreur_id });
+        io.to(`cmd_${id}`).emit('update', { id, type: 'arrive' });
         io.emit('CommandeTerminer', {
           id,
           client_id: commande.client_id,
@@ -241,51 +265,36 @@ exports.confirmerCommande = (req, res) => {
 
 
 
-
 exports.updatePositionCli = (req, res) => {
   const client = req.session.client;
+
   if (!client || !client.id) {
     return res.status(401).json({ success: false, message: 'Non authentifié' });
   }
 
   const { latitude, longitude } = req.body;
 
-  // Trouver la commande en cours du livreur
-  const findCommandeSqlCli = `
-    SELECT id FROM commande 
-    WHERE client_id = ? AND statut = 1 AND statut_2 = 1 AND statut_3 = 0 
-    ORDER BY date_commande DESC LIMIT 1
+  // Mise à jour des coordonnées dans la table clientuser
+  const updateClientUserSql = `
+    UPDATE clientuser 
+    SET latitude = ?, longitude = ? 
+    WHERE id = ? AND nom = ?
   `;
 
-  db.query(findCommandeSqlCli, [client.id], (err, result) => {
+  db.query(updateClientUserSql, [latitude, longitude, client.id, client.nom], (err, result) => {
     if (err) {
-      console.error("Erreur SQL recherche commande :", err);
-      return res.status(500).json({ success: false, message: 'Erreur BDD' });
+      console.error("Erreur SQL update clientuser :", err);
+      return res.status(500).json({ success: false, message: 'Erreur mise à jour position clientuser' });
     }
 
-    if (result.length === 0) {
-      return res.status(404).json({ success: false, message: 'Aucune commande active trouvée' });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Client non trouvé dans clientuser' });
     }
 
-    const commandeId = result[0].id;
-
-    // Mise à jour des coordonnées
-    const updateSqlCli = `
-      UPDATE commande 
-      SET latitude = ?, longitude = ? 
-      WHERE id = ?
-    `;
-
-    db.query(updateSqlCli, [latitude, longitude, commandeId], (err) => {
-      if (err) {
-        console.error("Erreur SQL update :", err);
-        return res.status(500).json({ success: false, message: 'Erreur mise à jour position' });
-      }
-
-      return res.json({ success: true, message: 'Position mise à jour' });
-    });
+    return res.json({ success: true, message: 'Position GPS client mise à jour dans clientuser' });
   });
 };
+
 
 exports.updatePosition = (req, res) => {
   const livreur = req.session.livreur;

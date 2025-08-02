@@ -1,12 +1,21 @@
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
+
+// 🟩 Formulaire d’inscription (GET)
+exports.registerForm = (req, res) => {
+  res.json({ success: true });
+};
+
 // 🟩 Formulaire de login (GET)
 exports.loginForm = (req, res) => {
   res.json({ success: true });
 };
 
-// 🟩 Traitement login (POST)
+
+
+
+// 🟩 Traitement de connexion ancient client
 exports.login = (req, res) => {
   const { telephone, motdepasse } = req.body;
 
@@ -47,39 +56,65 @@ exports.login = (req, res) => {
   });
 };
 
-// 🟩 Formulaire d’inscription (GET)
-exports.registerForm = (req, res) => {
-  res.json({ success: true });
-};
 
-// 🟩 Traitement d’inscription (POST)
+
+
+
+// 🟩 Traitement d’inscription (Nouveau client)
+
 exports.register = async (req, res) => {
   const { nom, email, telephone, motdepasse, confirmation } = req.body;
 
   if (!nom || !email || !telephone || !motdepasse || !confirmation) {
-    return res.render('html/auth/registerUser', { erreur: 'Veuillez remplir tous les champs' });
+    return res.send('Veuillez remplir tous les champs');
   }
 
   if (motdepasse !== confirmation) {
-    return res.render('html/auth/registerUser', { erreur: 'Les mots de passe ne correspondent pas' });
+    return res.send('Les mots de passe ne correspondent pas');
   }
 
   try {
-    const hashedPassword = await bcrypt.hash(motdepasse, 10);
+    // Vérifier si l'utilisateur existe déjà
+    db.query('SELECT * FROM clientuser WHERE telephone = ?', [telephone], async (err, results) => {
+      if (err) {
+        console.error('Erreur MySQL :', err);
+        return res.send('Erreur serveur');
+      }
 
-    db.query(
-      'INSERT INTO clientuser (nom, email, telephone, motdepasse) VALUES (?, ?, ?, ?)',
-      [nom, email, telephone, hashedPassword],
-      (err) => {
-        if (err) {
-          console.error('Erreur MySQL :', err);
-          return res.render('html/auth/registerUser', { erreur: 'Erreur lors de l\'inscription' });
+      if (results.length > 0) {
+        return res.send('Ce numéro est déjà utilisé');
+      }
+
+      // Hachage du mot de passe
+      const hashedPassword = await bcrypt.hash(motdepasse, 10);
+
+      // Insertion en BDD
+      db.query(
+        'INSERT INTO clientuser (nom, email, telephone, motdepasse) VALUES (?, ?, ?, ?)',
+        [nom, email, telephone, hashedPassword],
+        (err, result) => {
+          if (err) {
+            console.error('Erreur MySQL :', err);
+            return res.send("Erreur lors de l'inscription");
+          }
+
+          const userId = result.insertId;
+
+          // Initialiser la session comme dans login
+          req.session.client = {
+            id: userId,
+            telephone: telephone,
+            nom: nom
+          };
+          req.session.isAuthenticated = true;
+
+          res.json({ success: true });
         }
-
-        res.json({ success: true });      }
-    );
+      );
+    });
   } catch (error) {
     console.error('Erreur bcrypt :', error);
-    res.json({ success: true });
+    res.send('Erreur serveur');
   }
 };
+

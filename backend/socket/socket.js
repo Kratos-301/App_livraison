@@ -13,6 +13,8 @@ function handleSocket(io) {
     // Lorsqu’un livreur s'enregistre
     socket.on('registerLivreur', (livreurId) => {
       socket.livreurId = livreurId;
+
+      // Mettre le livreur en ligne
       db.query("UPDATE livreuruser SET isOnline = 1 WHERE id = ?", [livreurId], (err) => {
         if (err) {
           console.error("❌ Erreur mise à jour online :", err);
@@ -29,48 +31,46 @@ function handleSocket(io) {
       const livreurId = socket.livreurId;
       if (!livreurId) return;
 
-      // 1. Marquer le livreur hors ligne
+      // 1. Mettre hors ligne
       db.query("UPDATE livreuruser SET isOnline = 0 WHERE id = ?", [livreurId], (err) => {
         if (err) {
           console.error("❌ Erreur mise à jour offline :", err);
         } else {
-          console.log("🔴 Livreur hors-ligne :", livreurId);
+          console.log("🔴 Livreur hors ligne :", livreurId);
           io.emit('livreurStatusChange', { id: livreurId, status: 'offline' });
         }
       });
 
-      // 2. Trouver la commande active
-      db.query(`
-        SELECT id 
-        FROM commande 
-        WHERE livreur_id = ? AND statut = 1 AND statut_2 = 1 AND statut_3 = 0 
+      // 2. Trouver une commande en cours
+      const sqlFind = `
+        SELECT id FROM commande
+        WHERE livreur_id = ? AND statut = 1 AND statut_2 = 1 AND statut_3 = 0
         LIMIT 1
-      `, [livreurId], (err, results) => {
+      `;
+      db.query(sqlFind, [livreurId], (err, results) => {
         if (err) {
-          console.error("❌ Erreur récupération commande :", err);
+          console.error("❌ Erreur recherche commande :", err);
           return;
         }
 
         if (results.length > 0) {
           const commandeId = results[0].id;
 
-          // 3. Annuler la commande + remettre dispo + raison annulation
-          db.query(`
-            UPDATE commande 
-            SET statut_3 = 1, disponibilite = 1 
-            WHERE id = ?
-          `, [commandeId], (err2) => {
-            if (err2) {
-              console.error("❌ Erreur annulation commande :", err2);
-            } else {
-              console.log(`🚫 Commande ${commandeId} annulée (déconnexion)`);
-
-              // 4. Notifier la room
-              io.to(`cmd_${commandeId}`).emit("commandeAnnulee", {
-                message: "Le livreur s'est déconnecté. La commande est annulée.",
-                commandeId
-              });
+          // 3. Annuler la commande
+          const sqlUpdate = "UPDATE commande SET statut_2 = 1 AND statut_3 = 1 WHERE id = ?";
+          db.query(sqlUpdate, [commandeId], (err) => {
+            if (err) {
+              console.error("❌ Erreur annulation commande :", err);
+              return;
             }
+
+            console.log(`🚫 Commande ${commandeId} annulée car livreur déconnecté`);
+
+            // 4. Notifier le client dans la room
+            io.to(`cmd_${commandeId}`).emit("commande_annulee", {
+              message: "Le livreur s'est déconnecté. Commande annulée.",
+              commandeId,
+            });
           });
         }
       });

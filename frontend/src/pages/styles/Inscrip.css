@@ -39,7 +39,7 @@
     /* border-radius: 5px 5px 5px 0; */
     width: 430px;
     height: 400px;
-    background-color: #fff;
+    background-color: #bdb4b4;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -58,8 +58,9 @@
     top: -71px;
     right: -74px;
 }
+
 .all-form a{
-    background-color: #ffffffcb;
+    background-color: #4e5053cb;
     position: absolute;
     padding: 40px;
     border-radius: 50%;
@@ -106,7 +107,7 @@
 #nom{
     width: 300px;
 }
-.meute .bi{
+.bi{
     position: absolute;
     left: 15px; 
     top: 35px;
@@ -118,12 +119,7 @@
     align-items: center;
     flex-direction: column;
 }
-.seul #bi{
-    position: absolute;
-    left: 15px;
-    top: 35px;
-    font-size: 25px;
-}
+
 .btn2 input{
     padding: 5px;
     width: 120px;
@@ -145,11 +141,21 @@
     justify-content: space-around;
     margin-bottom: 15px;
 }
-.giga #droite, .giga #gauche{
+.giga #gauche{
     z-index: 10;
     border: none;
     font-weight: 800;
     color: #2f73d893;
+    font-size: 25px;
+    padding: 5px 15px;
+    background-color: #ffffff;
+    border-radius: 15px;
+}
+.giga #droite{
+    z-index: 10;
+    border: none;
+    font-weight: 800;
+    color: #7b2fd893;
     font-size: 25px;
     padding: 5px 15px;
     background-color: #ffffff;
@@ -168,13 +174,13 @@
     background-color: #333;
     z-index: 3;
     position: absolute;
-    transform: translateX(50%);
+    transform: translateX(100%);
 }
- .gauche{ 
+ #gauche{ 
     transform: translateX(-50%);
     transition: 1s;
 }
- .droite{
+ #droite{
     transform: translateX(50%);
     transition: 1s;
 }

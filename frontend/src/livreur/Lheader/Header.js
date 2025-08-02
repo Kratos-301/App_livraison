@@ -1,9 +1,66 @@
-import React from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
-import '../styles/barre.css'; 
+import { Link, useNavigate } from 'react-router-dom';
+import io from 'socket.io-client';
+import '../styles/barre.css';
 
-const header = ({ livreur }) => {
+const SOCKET_SERVER_URL = "http://localhost:3000"; // adapte à ton serveur
+
+const Header = ({ livreur }) => {
+  const [status, setStatus] = useState('offline'); // online/offline
+  const socketRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!livreur?.id) return;
+
+    // Connexion socket
+    socketRef.current = io(SOCKET_SERVER_URL, {
+      withCredentials: true,
+    });
+
+    // Dès la connexion, on enregistre le livreur côté serveur
+    socketRef.current.on('connect', () => {
+      console.log('Socket connecté:', socketRef.current.id);
+      socketRef.current.emit('registerLivreur', livreur.id);
+    });
+
+    // Gestion des changements de statut (online/offline)
+    socketRef.current.on('livreurStatusChange', ({ id, status }) => {
+      if (id === livreur.id) {
+        setStatus(status);
+      }
+    });
+
+    // Ping serveur toutes les 10s pour garder la connexion active
+    const pingInterval = setInterval(() => {
+      socketRef.current.emit('pingServeur');
+    }, 10000);
+
+    // Nettoyage à la fermeture du composant
+    return () => {
+      clearInterval(pingInterval);
+      socketRef.current.disconnect();
+    };
+  }, [livreur]);
+
+  const handleLogout = () => {
+    axios.get(`${SOCKET_SERVER_URL}/api/livreur/logoutLivreur`, {
+      withCredentials: true,
+      credentials: 'include',
+    })
+      .then(() => {
+        // Déconnexion socket
+        if (socketRef.current) {
+          socketRef.current.disconnect();
+        }
+        navigate('/'); // redirection à la racine (ou login)
+      })
+      .catch(err => {
+        console.error("Erreur lors de la déconnexion", err);
+      });
+  };
+
   return (
     <>
       {/* Barre verticale */}
@@ -33,9 +90,9 @@ const header = ({ livreur }) => {
               </ul>
               <ul className="dead">
                 <li>
-                  <Link to="/livreur/logoutLivreur">
+                  <button onClick={handleLogout} className="btn btn-link text-danger">
                     <i className="bi bi-box-arrow-right"></i> Déconnexion
-                  </Link>
+                  </button>
                 </li>
               </ul>
             </div>
@@ -54,26 +111,24 @@ const header = ({ livreur }) => {
               <img src="/assets/profil/profil.jpg" alt="profil" />
               <span>{livreur?.nom}</span>
               <i className="bi bi-caret-down-fill"></i>
-              <span id="voyant"></span>
+              {/* Voyant vert ou rouge selon le statut */}
+              <span
+                id="voyant"
+                style={{
+                  display: 'inline-block',
+                  width: '10px',
+                  height: '10px',
+                  borderRadius: '50%',
+                  backgroundColor: status === 'online' ? 'green' : 'red',
+                  marginLeft: '5px',
+                }}
+                title={status === 'online' ? 'En ligne' : 'Hors ligne'}
+              />
             </div>
             <ul id="deco-profil">
               <li><a href="#">Edit Profil</a></li>
               <li>
-                <button
-                  onClick={() => {
-                    axios.get('http://localhost:3000/api/livreur/logoutLivreur', {
-  withCredentials: true,
-                      credentials: 'include',
-                    })
-                      .then(() => {
-                        window.location.href = '/'; // ou vers loginUser si besoin
-                      })
-                      .catch(err => {
-                        console.error("Erreur lors de la déconnexion", err);
-                      });
-                  }}
-                  className="btn btn-link text-danger"
-                >
+                <button onClick={handleLogout} className="btn btn-link text-danger">
                   <i className="bi bi-box-arrow-right"></i> Déconnexion
                 </button>
               </li>
@@ -85,4 +140,4 @@ const header = ({ livreur }) => {
   );
 };
 
-export default header;
+export default Header;

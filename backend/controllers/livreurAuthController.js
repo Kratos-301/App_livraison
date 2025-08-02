@@ -1,6 +1,11 @@
-
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
+
+
+// ⏩ GET - Register form
+exports.registerForm = (req, res) => {
+  res.render('html/auth/registerUser', { erreur: null });
+};
 
 
 exports.loginForm = (req, res) => {
@@ -67,51 +72,66 @@ exports.login = (req, res) => {
   });
 };
 
+// ⏩ Traitement du formulaire d'inscription 
 
-// ⏩ GET - Register form
-exports.registerForm = (req, res) => {
-  res.render('html/auth/registerUser', { erreur: null });
-};
-
-
-
-// ⏩ POST - Register logic
 exports.register = async (req, res) => {
-  const { nom, email, telephone, marque_moto, motdepasse, confirmation } = req.body;
+  const { nom, email, telephone, marque_moto, num_cni, motdepasse, confirmation } = req.body;
+  const photoProfil = req.file ? req.file.filename : null;
 
-  if (!nom || !email || !telephone || !marque_moto || !motdepasse || !confirmation) {
-    return res.render('html/auth/registerUser', { erreur: 'Veuillez remplir tous les champs' });
+  if (!nom || !email || !telephone || !marque_moto || !num_cni || !motdepasse || !confirmation) {
+    return res.status(400).json({ success: false, message: 'Veuillez remplir tous les champs' });
   }
 
   if (motdepasse !== confirmation) {
-    return res.render('html/auth/registerUser', { erreur: 'Les mots de passe ne correspondent pas' });
+    return res.status(400).json({ success: false, message: 'Les mots de passe ne correspondent pas' });
   }
 
   try {
     const hashedPassword = await bcrypt.hash(motdepasse, 10);
-    
 
-    db.query(
-      'INSERT INTO livreuruser (nom, email, telephone, marque_moto, motdepasse, isOnline) VALUES (?, ?, ?, ?, ?, 1)',
-      [nom, email, telephone, marque_moto, hashedPassword],
-      (err) => {
-        if (err) {
-          console.error('Erreur MySQL :', err);
-          return res.render('html/auth/registerUser', { erreur: 'Erreur lors de l\'inscription' });
-        }
+    const insertQuery = `
+      INSERT INTO livreuruser (nom, email, telephone, marque_moto, num_cni, pp, motdepasse, isOnline)
+      VALUES (?, ?, ?, ?, ?, ?, ?, 1)
+    `;
 
-        res.redirect('/commande/html/page/acc-livreur');
+    db.query(insertQuery, [nom, email, telephone, marque_moto, num_cni, photoProfil, hashedPassword], (err, result) => {
+      if (err) {
+        console.error('Erreur MySQL :', err);
+        return res.status(500).json({ success: false, message: "Erreur lors de l'inscription" });
       }
-    );
+
+      const newLivreurId = result.insertId;
+
+      // 🔐 Stocker la session après l'insertion
+      req.session.livreur = {
+        id: newLivreurId,
+        nom,
+        email
+      };
+      req.session.isAuthenticated = true;
+
+      return res.status(201).json({
+        success: true,
+        message: "Inscription et connexion réussies",
+        livreur: {
+          id: newLivreurId,
+          nom,
+          email
+        }
+      });
+    });
   } catch (error) {
     console.error('Erreur bcrypt :', error);
-    res.render('html/auth/registerUser', { erreur: 'Erreur serveur' });
+    return res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 };
 
 
 
+
+
 // ⏩ GET - Page client
+
 exports.accueilClient = (req, res) => {
   const livreur = req.session.livreur;
 
@@ -134,6 +154,8 @@ exports.accueilClient = (req, res) => {
 
 
 // ⏩ GET - Page livreur
+
+
 exports.accueilLivreur = (req, res) => {
   const livreur = req.session.livreur;
 

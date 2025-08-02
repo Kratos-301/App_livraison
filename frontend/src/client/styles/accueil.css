@@ -101,6 +101,52 @@
 
 
 
+/* Page condition === (Engager) retoucher mon formulaire */
 
+#Envoie-djai{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 450px;
+    height: 350px;
+    border-radius: 15px;
+    padding: 10px;
+    background-color: aquamarine;
+}
+#Envoie-djai .djai {
+    width: 100%;
+}
+#Envoie-djai .uno {
+    display: flex;
+    justify-content: space-around;
+}
 
+#Envoie-djai .uno span{
+    font-size: 24px;
+    align-items: start;
+}
 
+#Envoie-djai .Perligne{
+    display: flex;
+    flex-direction: column;
+}
+
+#Envoie-djai .Deligne{
+    display: flex;
+    flex-direction: column;
+}
+
+#Envoie-djai .deuxio{
+    display: flex;
+    justify-content: space-around;
+}
+
+#Envoie-djai .type{
+    display: flex;
+    flex-direction: column;
+}
+
+#Envoie-djai .fric{
+    display: flex;
+    flex-direction: column;
+}

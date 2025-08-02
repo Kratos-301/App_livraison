@@ -15,6 +15,7 @@ router.post('/annuler/:id', ctrl.annulerClient);
 
 router.post('/annuler_li/:id', ctrl.annulerLivreur);
 router.post('/terminer/:id', ctrl.terminerCommandeLivreur);
+router.post('/fini/:id', ctrl.finiCommandeLivreur);
 router.post('/confirmer/:id', ctrl.confirmerCommande);
 
 router.get('/accueil', ctrl.apiAccueilClient);
@@ -26,4 +27,8 @@ router.post('/updatePositionCli', ctrl.updatePositionCli);
 
 
 router.get('/updatePosition/:id', ctrl.getLivreurPosition);
+
+
+
+
 module.exports = router;

@@ -9,6 +9,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 
 const commandeController = require('./controllers/commandeController');
+const deliveryController = require('./controllers/deliveryController');
 const handleSocket = require('./socket/socket');
 
 const app = express();
@@ -25,6 +26,7 @@ const io = new Server(server, {
 
 // 👇 Tu peux maintenant utiliser io
 commandeController.setSocketIo(io);
+deliveryController.setSocketIo(io);
 handleSocket(io);
 
 io.on('connection', (socket) => {
@@ -106,7 +108,10 @@ app.get('/', (req, res) => {
 const clientAuthRouter = require('./routes/clientAuth');
 const commandeRoutes = require('./routes/commande');
 const livreurAuthRoutes = require('./routes/livreurAuth');
+const deliveryRoutes = require('./routes/delivery')
 
+
+app.use('/api/delivery', deliveryRoutes);
 app.use('/api/clientAuth', clientAuthRouter);
 app.use('/api/livreur', commandeRoutes);
 app.use('/api/commande', commandeRoutes);
