@@ -46,6 +46,11 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
+
+
 // Sessions
 app.use(session({
   secret: 'votre_clé_secrète',
@@ -116,6 +121,7 @@ app.use('/api/clientAuth', clientAuthRouter);
 app.use('/api/livreur', commandeRoutes);
 app.use('/api/commande', commandeRoutes);
 app.use('/livreurAuth', livreurAuthRoutes);
+
 
 
 

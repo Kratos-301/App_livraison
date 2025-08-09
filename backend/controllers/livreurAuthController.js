@@ -2,7 +2,6 @@ const db = require('../config/db');
 const bcrypt = require('bcrypt');
 
 
-// ⏩ GET - Register form
 exports.registerForm = (req, res) => {
   res.render('html/auth/registerUser', { erreur: null });
 };
@@ -11,7 +10,6 @@ exports.registerForm = (req, res) => {
 exports.loginForm = (req, res) => {
   res.render('html/auth/loginUser');
 };
-
 
 
 exports.login = (req, res) => {
@@ -49,7 +47,9 @@ exports.login = (req, res) => {
         req.session.livreur = {
           id: livreur.id,
           nom: livreur.nom,
-          email: livreur.email
+          email: livreur.email,
+          photo: livreur.pp,
+          cni: livreur.num_cni
         };
         req.session.isAuthenticated = true;
 
@@ -60,7 +60,9 @@ exports.login = (req, res) => {
           livreur: {
             id: livreur.id,
             nom: livreur.nom,
-            email: livreur.email
+            email: livreur.email,
+            photo: livreur.pp,
+            cni: livreur.num_cni
           }
         });
       });
@@ -110,21 +112,23 @@ exports.register = async (req, res) => {
       };
       req.session.isAuthenticated = true;
 
-      return res.status(201).json({
-        success: true,
-        message: "Inscription et connexion réussies",
-        livreur: {
-          id: newLivreurId,
-          nom,
-          email
-        }
-      });
+        // ✅ Envoie réponse JSON au frontend React
+        return res.json({
+          success: true,
+          message: 'Connexion réussie',
+          livreur: {
+            id: newLivreurId,
+            nom,
+            photo: photoProfil
+          }
+        });
     });
   } catch (error) {
     console.error('Erreur bcrypt :', error);
     return res.status(500).json({ success: false, message: 'Erreur serveur' });
   }
 };
+
 
 
 

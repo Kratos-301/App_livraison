@@ -12,7 +12,8 @@ router.get('/registerUser', controller.registerForm);
 router.post('/registerUser', upload.single('pp'), controller.register);
 
 // Pages
-router.get('/commande/html/page/accueil', controller.accueilClient);
-router.get('/commande/html/page/acc-livreur', controller.accueilLivreur);
+
+//router.get('/commande/html/page/accueil', controller.accueilClient);
+//router.get('/commande/html/page/acc-livreur', controller.accueilLivreur);
 
 module.exports = router;

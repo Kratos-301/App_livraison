@@ -150,7 +150,7 @@ exports.annulerClient = (req, res) => {
         // 🟢 Notifier tous les clients que le livreur est libre
         io.emit('livreurStatusChange', {
           id: livreurId,
-          status: 'disponible'  // ou "disponible"
+          status: 'online'  // ou "disponible"
         });
 
         // 🔁 Notifier la room spécifique

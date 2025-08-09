@@ -41,14 +41,14 @@ exports.getCommandesClient = (client_id, callback) => {
 
 exports.getLivreurs = (callback) => {
   const sql = `
-    SELECT l.id, l.nom, l.marque_moto,
+    SELECT l.id, l.nom, l.marque_moto, pp,
       EXISTS (
         SELECT 1 FROM commande c
         WHERE c.livreur_id = l.id
           AND c.statut = 1 AND c.statut_3 = 0 
       ) AS est_occupe
     FROM livreuruser l
-    WHERE l.isOnline = 1
+    WHERE l.isOnline = 1 AND certifyand = 'Approuver' AND disponibilite = 'Valider'
   `;
   db.query(sql, callback);
 };

@@ -32,16 +32,6 @@ const Header = ({ livreur }) => {
       }
     });
 
-    // Ping serveur toutes les 10s pour garder la connexion active
-    const pingInterval = setInterval(() => {
-      socketRef.current.emit('pingServeur');
-    }, 10000);
-
-    // Nettoyage à la fermeture du composant
-    return () => {
-      clearInterval(pingInterval);
-      socketRef.current.disconnect();
-    };
   }, [livreur]);
 
   const handleLogout = () => {
@@ -108,7 +98,10 @@ const Header = ({ livreur }) => {
           </div>
           <div id="profil">
             <div id="conprofil">
-              <img src="/assets/profil/profil.jpg" alt="profil" />
+              <img src={`http://localhost:3000/uploads/livreurs/${livreur.photo}`} alt="Photo du livreur" />
+
+
+
               <span>{livreur?.nom}</span>
               <i className="bi bi-caret-down-fill"></i>
               {/* Voyant vert ou rouge selon le statut */}

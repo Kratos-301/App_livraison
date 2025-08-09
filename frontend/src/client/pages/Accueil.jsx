@@ -72,26 +72,48 @@ const Accueil = () => {
           withCredentials: true,
         })
         .then((res) => {
-          setUser(res.data.client);
           setCommandes(res.data.commandes || []);
+          setLivreurs(res.data.livreurs || [] );
+        });
+    });
+
+     socket.on("deliveryCreated", (data) => {
+      console.log("✅ Delivery Creer", data);
+      axios
+        .get("http://localhost:3000/api/delivery/deliClient", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setDeliverys(res.data.deliverys || []);
+        });
+    });
+
+
+
+
+     socket.on("commandeConfirmed", (data) => {
+      console.log("✅ commandeConfirmed ", data);
+      axios
+        .get('http://localhost:3000/api/delivery/deliClient', {
+          withCredentials: true,
+        })
+        .then((res) => {
           setLivreurs(res.data.livreurs || []);
           setDeliverys(res.data.deliverys || []);
         });
     });
 
-     socket.on("DeliveryValider", (data) => {
-      console.log("✅ Delivery valider", data);
-      axios
-        .get("http://localhost:3000/api/commande/accueil", {
-          withCredentials: true,
-        })
-        .then((res) => {
-          setUser(res.data.client);
+
+    socket.on("DeliveryUpdadeTerminer", (data) => {
+    console.log("✅ DeliveryUpdadeTerminer", data);
+    axios.get('http://localhost:3000/api/delivery/deliClient', { withCredentials: true })
+      .then((res) => {
+          setDeliverys(res.data.deliverys || []);
           setCommandes(res.data.commandes || []);
           setLivreurs(res.data.livreurs || []);
-          setDeliverys(res.data.deliverys || []);
         });
-    });
+  });
+
 
     socket.on("livreurStatusChange", ({ id, status }) => {
       console.log(`🟢 Livreur ${id} est maintenant ${status}`);
@@ -107,9 +129,23 @@ const Accueil = () => {
         });
     });
 
+        socket.on("disconnect", ({ id, status }) => {
+      console.log(`🟢 Livreur ${id} s'est tout a l'heure ${status}`);
+      axios
+        .get("http://localhost:3000/api/commande/accueil", {
+          withCredentials: true,
+        })
+        .then((res) => {
+          setUser(res.data.client);
+          setCommandes(res.data.commandes || []);
+          setLivreurs(res.data.livreurs || []);
+          setDeliverys(res.data.deliverys || []);
+        });
+    });
+
+
     socket.on("commandeAnnulee", (data) => {
       console.log("❌ Commande annulée", data);
-
       axios
         .get("http://localhost:3000/api/commande/accueil", {
           withCredentials: true,
@@ -126,6 +162,9 @@ const Accueil = () => {
       socket.disconnect();
     };
   }, []);
+
+
+//Icon sur la map
 
   const livreurIcon = L.icon({
     iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
@@ -191,6 +230,7 @@ const Accueil = () => {
   }, []);
 
 
+  //Initialisation de l'affichage de la carte
   
   useEffect(() => {
     if (!mapRef.current && position) {
@@ -199,7 +239,7 @@ const Accueil = () => {
 
       const map = L.map("map").setView(
         [position.latitude, position.longitude],
-        14
+        10
       );
       L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
         attribution: "&copy; OpenStreetMap contributors",
@@ -207,6 +247,8 @@ const Accueil = () => {
       mapRef.current = map;
     }
   }, [position]);
+
+//Insertion des differents details dans la carte
 
   useEffect(() => {
     if (!commandeEnCours || !position || !mapRef.current) return;
@@ -251,6 +293,9 @@ const Accueil = () => {
     mapRef.current.setView(start);
   }, [commandeEnCours, position, startTime]);
 
+
+//Formulaire Invisible
+
   const handleGeoSubmit = (livreur) => {
     navigator.geolocation.getCurrentPosition(
       async (pos) => {
@@ -277,7 +322,7 @@ const Accueil = () => {
               withCredentials: true,
             }
           );
-          window.location.href = "/client/pages/Accueil";
+
         } catch (err) {
           console.error("Erreur lors de l’envoi de la commande", err);
         }
@@ -288,16 +333,7 @@ const Accueil = () => {
     );
   };
 
-  useEffect(() => {
-    if (!socketRef.current) return;
-
-    const interval = setInterval(() => {
-      socketRef.current.emit("pingServeur");
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, []);
-
+//Chargeur des données depuis la BD
 
   useEffect(() => {
     Promise.all([
@@ -330,13 +366,44 @@ const Accueil = () => {
         <Header client={client} />
       </div>
 
-      <div className="main-content client" id="continer">
-        {/* ✅ Affichage du formulaire si aucune commande en attente */}
-        {deliverys && !commandes.some(
-          (cmd) =>
-            (cmd.statut === 1 && cmd.statut_2 === 0 && cmd.statut_3 === 0) ||
-            (cmd.statut === 1 && cmd.statut_2 === 1 && cmd.statut_3 === 0) ||
-            (cmd.statut === 2 && cmd.statut_2 === 2 && cmd.statut_3 === 2 && cmd.passation === "Engager" )
+<div className="main-content client" id="continer">
+  {(() => {
+    // On prépare les conditions importantes pour l'affichage
+    const hasCommandeStatut1_0_0 = commandes.some(
+      (cmd) => cmd.statut === 1 && cmd.statut_2 === 0 && cmd.statut_3 === 0
+    );
+    const hasCommandeStatut1_1_0 = commandes.some(
+      (cmd) => cmd.statut === 1 && cmd.statut_2 === 1 && cmd.statut_3 === 0
+    );
+    const hasCommandePassationEngagerStatut222 = commandes.some(
+      (cmd) => cmd.statut === 2 && cmd.statut_2 === 2 && cmd.statut_3 === 2 && cmd.passation === "Engager"
+    );
+    const hasCommandePassationEngager = commandes.some(
+      (cmd) => cmd.passation === "Engager"
+    );
+
+    // Objet regroupant tous les états à utiliser
+    const firstDelivery = deliverys[0] || {};
+
+const status = {
+  hasCommandeStatut1_0_0,
+  hasCommandeStatut1_1_0,
+  hasCommandePassationEngagerStatut222,
+  hasCommandePassationEngager,
+  isDeliveryConfirmLivreurEnclencher: firstDelivery.confirm_livreur === "Enclencher",
+  isDeliveryConfirmLivreurValider: firstDelivery.confirm_livreur === "Valider",
+  isDeliveryConfirmClientEnAttente: firstDelivery.confirm_client === "En attente",
+  isDeliveryConfirmClientValider: firstDelivery.confirm_client === "Valider",
+};
+
+
+    return (
+      <>
+        {/* Affichage formulaire si aucune commande en attente */}
+        {deliverys && !(
+          status.hasCommandeStatut1_0_0 ||
+          status.hasCommandeStatut1_1_0 ||
+          status.hasCommandePassationEngagerStatut222
         ) && (
           <>
             {gpsError && (
@@ -359,7 +426,10 @@ const Accueil = () => {
                         livreur.est_occupe ? "occupe" : "disponible"
                       }`}
                     >
-                      <img src="/assets/img/thygujlokdded.png" alt="livreur" />
+                      <img
+                        src={`http://localhost:3000/uploads/livreurs/${livreur.pp}`}
+                        alt={`Profil de ${livreur.nom}`}
+                      />
                       <span className="livreur-nom">{livreur.nom}</span>
                       <span>{livreur.marque_moto}</span>
                       <div className="commander">
@@ -388,7 +458,7 @@ const Accueil = () => {
           </>
         )}
 
-        {/* ✅ Carte pour commande en cours */}
+        {/* Carte pour commande en cours */}
         {commandes.find(
           (cmd) => cmd.statut === 1 && cmd.statut_2 === 1 && cmd.statut_3 === 0
         ) && (
@@ -397,9 +467,7 @@ const Accueil = () => {
             <p>Distance restante : {distance} km</p>
             <p>
               Temps écoulé :{" "}
-              {startTime
-                ? Math.floor((Date.now() - startTime) / 1000) + "s"
-                : "..."}
+              {startTime ? Math.floor((Date.now() - startTime) / 1000) + "s" : "..."}
             </p>
             <p>
               <button
@@ -419,9 +487,7 @@ const Accueil = () => {
                       {},
                       { withCredentials: true }
                     );
-                    setCommandes((prev) =>
-                      prev.filter((c) => c.id !== commande.id)
-                    );
+                    setCommandes((prev) => prev.filter((c) => c.id !== commande.id));
                   } catch (err) {
                     console.error("❌ Erreur lors de l'annulation :", err);
                   }
@@ -433,10 +499,10 @@ const Accueil = () => {
           </div>
         )}
 
-        {/* ✅ Liste des commandes en attente validation */}
+        {/* Liste des commandes en attente validation */}
         {commandes.map((cmd) => {
-          const date = new Date(cmd.date_commande).toLocaleString();
           if (cmd.statut === 1 && cmd.statut_2 === 0 && cmd.statut_3 === 0) {
+            const date = new Date(cmd.date_commande).toLocaleString();
             return (
               <div key={cmd.id}>
                 <table className="table table-striped mt-4">
@@ -465,14 +531,9 @@ const Accueil = () => {
                                 {},
                                 { withCredentials: true }
                               );
-                              setCommandes((prev) =>
-                                prev.filter((c) => c.id !== cmd.id)
-                              );
+                              setCommandes((prev) => prev.filter((c) => c.id !== cmd.id));
                             } catch (err) {
-                              console.error(
-                                "❌ Erreur lors de l'annulation :",
-                                err
-                              );
+                              console.error("❌ Erreur lors de l'annulation :", err);
                             }
                           }}
                         >
@@ -492,167 +553,154 @@ const Accueil = () => {
           return null;
         })}
 
+        {/* Bloc "Delivery De Validation de dit Livreur" */}
+        {status.isDeliveryConfirmLivreurEnclencher && status.hasCommandePassationEngager && (
+          <div className="alert alert-warning jikoko">
+            <h1>
+              Votre livreur est arrivé <br /> veillez negocier les différents details
+            </h1>
+            <br />
+            <div className="loader-container">
+              <div className="loader"></div>
+              <p>En attente de fin de négociation avec votre livreur</p>
+            </div>
+          </div>
+        )}
 
+        {/* Bloc De demande de validation Client */}
+        {status.isDeliveryConfirmLivreurValider &&
+          status.isDeliveryConfirmClientEnAttente &&
+          status.hasCommandePassationEngager && (
+            (() => {
+              const commandeEnCours = commandes.find((cmd) => cmd.passation === "Engager");
 
-         {/* ✅ Bloc "Delivery De Validation de dit Livreur" */}
-        {Array.isArray(commandes) &&
-          deliverys && deliverys.confirm_livreur === "Enclencher" &&
-          commandes.some((cmd) => cmd.passation === "Engager") &&
-          (() => {
-            const commandeEnCours = commandes.find(
-              (cmd) => cmd.passation === "Engager"
-            );
-
-            return (
-              <div className="alert alert-warning jikoko">
-                <h1>Votre livreur est arrivé <br /> veillez negocier les différents details</h1> <br />
-                <div className="loader-container">
-                  <div className="loader"></div>
-                  <p>En attente de fin de négociation avec votre livreur</p>
-                </div>
-              </div>
-            );
-          })()}
-
-
-
-
-
-        {/* ✅ Bloc De demande de validation Client */}
-        {Array.isArray(commandes) &&
-          deliverys &&
-          deliverys.confirm_livreur === "Valider" &&
-          deliverys.confirm_client === "En attente" &&
-          commandes.some((cmd) => cmd.passation === "Engager") &&
-          (() => {
-            const commandeEnCours = commandes.find(
-              (cmd) => cmd.passation === "Engager"
-            );
-
-            return (
-              <div className="alert alert-warning jikoko">
-                <h1>Facturation</h1>
-                <form  method="post" id="Envoie-djai">
-                  <div className="djai">
-                     <span>Vous avez selectionné <strong>{deliverys.choix}</strong> ça vous reviens a une sommes comprise entre <strong>{deliverys.prix} </strong>selon la distance</span> <br /> <br />
-                    <div className="details">
-                      <div className="uno">
-                        <div className="Perligne">
-                          <label htmlFor="nomComplet">
-                            Identifiant livreur
-                          </label>
-                          <span>{
-                              commandeEnCours
-                                ? commandeEnCours.livreur_nom
-                                : "Livreur inconnu"
-                            }</span>
-                        </div>
-                        <div className="Deligne">
-                          <label htmlFor="nomComplet"> Engin du livreur</label>
-                          <span>{
-                              commandeEnCours
+              return (
+                <div className="alert alert-warning jikoko">
+                  <h1>Facturation</h1>
+                  <form method="post" id="Envoie-djai">
+                    <div className="djai">
+                      <span>
+                        Vous avez selectionné <strong>{firstDelivery.choix}</strong> ça vous reviens a
+                        une sommes comprise entre <strong>{firstDelivery.prix} </strong>selon la distance
+                      </span>
+                      <br />
+                      <br />
+                      <div className="details">
+                        <div className="uno">
+                          <div className="Perligne">
+                            <label htmlFor="nomComplet">Identifiant livreur</label>
+                            <span>
+                              {commandeEnCours ? commandeEnCours.livreur_nom : "Livreur inconnu"}
+                            </span>
+                          </div>
+                          <div className="Deligne">
+                            <label htmlFor="nomComplet"> Engin du livreur</label>
+                            <span>
+                              {commandeEnCours
                                 ? commandeEnCours.livreur_marque_moto
-                                : "Livreur inconnu"
-                            }</span>
+                                : "Livreur inconnu"}
+                            </span>
+                          </div>
                         </div>
+
+                        <button
+                          onClick={async (e) => {
+                            e.preventDefault();
+                            try {
+                              const data = {
+                                confirm_client: "Valider",
+                              };
+                              await axios.post(
+                                `http://localhost:3000/api/delivery/deliclient/${firstDelivery.id}`,
+                                data
+                              );
+                              alert("Facturation Valider !");
+                            } catch (error) {
+                              console.error(
+                                "Erreur lors de l'envoi de la facturation client :",
+                                error.response?.data || error.message || error
+                              );
+                              alert(
+                                "Erreur lors de l'envoi client ",
+                                error.response?.data || error.message || error
+                              );
+                            }
+                          }}
+                        >
+                          Je suis d'accord
+                        </button>
+
+                        {/* Bouton annuler */}
+                        <button
+                          type="button"
+                          className="btn btn-danger btn-sm mt-2"
+                          onClick={() => {
+                            if (window.confirm("Êtes vous De vouloir annuler ?")) {
+                              navigator.geolocation.getCurrentPosition(
+                                async (pos) => {
+                                  try {
+                                    const payload = {
+                                      actif: 0,
+                                    };
+
+                                    await axios.post(
+                                      `http://localhost:3000/api/delivery/annulerClient/${firstDelivery.id}`,
+                                      payload,
+                                      { withCredentials: true }
+                                    );
+
+                                    await axios.post(
+                                      `http://localhost:3000/api/commande/annuler/${commandeEnCours.id}`,
+                                      {
+                                        statut: 1,
+                                        statut_1: 1,
+                                        statut_3: 1,
+                                        disponibilite: 1,
+                                      },
+                                      { withCredentials: true }
+                                    );
+
+                                    setCommandes(null);
+                                  } catch (err) {
+                                    console.error("Erreur lors de la finalisation de la commande", err);
+                                    alert("Une erreur est survenue.");
+                                  }
+                                },
+                                (err) => {
+                                  alert("⛔ GPS non autorisé. Impossible de continuer.");
+                                }
+                              );
+                            }
+                          }}
+                        >
+                          Annuler
+                        </button>
+                        {/* Fin bouton annuler */}
                       </div>
-                       <button onClick={async (e) => {
-  e.preventDefault();
-
-  try {
-    const data = {
-      confirm_client: "Valider",
-    };
-
-     await axios.post(`http://localhost:3000/api/delivery/deliclient/${deliverys.id}`, data);
-
-
-    alert("Facturation Valider !");
-  } catch (error) {
-  console.error("Erreur lors de l'envoi de la facturation :", error.response?.data || error.message || error);
-  alert("Erreur lors de l'envoi", error.response?.data || error.message || error);
-}
-}}>Je suis d'accord</button>
-
-{/* Zonne de bouton annuler------------------------------------------------------------------------------------------------------------------------------------------------- */}
-
-<button
-  type="button"
-  className="btn btn-danger btn-sm mt-2"
-  onClick={() => {
-    if (window.confirm("Êtes vous De vouloir annuler ?")) {
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          try {
-            const payload = {
-              actif: 0
-            };
-
-             axios.post(
-              `http://localhost:3000/api/delivery/annulerClient/${deliverys.id}`,
-              payload,
-              { withCredentials: true }
-            );
-
-
-            await axios.post(`http://localhost:3000/api/commande/annuler/${commandeEnCours.id}`, {
-                      statut: 1,
-                      statut_1: 1,
-                      statut_3: 1,
-                      disponibilite: 1
-                    },
-              { withCredentials: true }
-            );
-
-            setCommandes(null);
-            window.location.href = "/livreur/pages/Dashboard";
-
-          } catch (err) {
-            console.error("Erreur lors de la finalisation de la commande", err);
-            alert("Une erreur est survenue.");
-          }
-        },
-        (err) => {
-          alert("⛔ GPS non autorisé. Impossible de continuer.");
-        }
-      );
-    }
-  }}
->
-  Annuler
-</button>
-
-{/* Zonne de bouton annuler------------------------------------------------------------------------------------------------------------------------------------------------- */}  
                     </div>
-                  </div>
-                </form>
-              </div>
-            );
-          })()}
+                  </form>
+                </div>
+              );
+            })()
+          )}
 
+        {/* Bloc De demande de validation Client - confirmation finale */}
+        {status.isDeliveryConfirmLivreurValider &&
+          status.isDeliveryConfirmClientValider &&
+          status.hasCommandePassationEngager && (
+            (() => {
+              return (
+                <div className="alert alert-warning jikoko">
+                  <h1>En route</h1>
+                </div>
+              );
+            })()
+          )}
+      </>
+    );
+  })()}
+</div>
 
-
-
-           {/* ✅ Bloc De demande de validation Client */}
-        {Array.isArray(commandes) &&
-          deliverys &&
-          deliverys.confirm_livreur === "Valider" &&
-          deliverys.confirm_client === "Valider" &&
-          commandes.some((cmd) => cmd.passation === "Engager") &&
-          (() => {
-            const commandeEnCours = commandes.find(
-              (cmd) => cmd.passation === "Engager"
-            );
-
-            return (
-              <div className="alert alert-warning jikoko">
-                <h1>En route</h1>
-                
-              </div>
-            );
-          })()}
-
-      </div>
     </>
   );
 };

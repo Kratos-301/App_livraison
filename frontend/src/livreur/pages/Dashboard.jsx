@@ -34,69 +34,6 @@ const Dashboard = () => {
   const socketRef = useRef(null);
 
 
-
-
-  // Connexion WebSocket
-  // useEffect(() => {
-  //   socketRef.current = io('http://localhost:3000', {
-  //     withCredentials: true,
-  //   });
-
-  //   const socket = socketRef.current;
-
-  //   // Charger les données
-  //   axios.get('http://localhost:3000/api/commande/livreurAccueil', { withCredentials: true })
-  //     .then(res => {
-  //       if (!res.data.livreur) return navigate('/');
-  //       setUser(res.data.livreur);
-  //       setCommande(res.data.commande);
-  //       setDelivery(res.data.delivery);
-
-  //       // ✅ Informer le backend de la connexion du livreur
-  //       socket.emit('registerLivreur', res.data.livreur.id);
-
-  //       // ✅ Rejoindre la room de commande si en cours
-  //       if (res.data.commande?.id) {
-  //         socket.emit('joinRoom', res.data.commande.id);
-  //       }
-  //     })
-  //     .catch(() => navigate('/'));
-
-  //   // 🎧 Événements WebSocket
-  //   socket.on("commandeCreated", (data) => {
-  //     console.log("📦 Nouvelle commande reçue", data);
-  //     axios.get('http://localhost:3000/api/commande/livreurAccueil', { withCredentials: true })
-  //       .then(res => setCommande(res.data.commande));
-  //   });
-
-  //   socket.on("commandeConfirmed", (data) => {
-  //     console.log("✅ Commande confirmée", data);
-  //     axios.get('http://localhost:3000/api/commande/livreurAccueil', { withCredentials: true })
-  //       .then(res => setCommande(res.data.commande));
-  //   });
-
-  //    socket.on("CommandeTerminer", (data) => {
-  //     console.log("✅ Commande terminer", data);
-  //     axios.get('http://localhost:3000/api/commande/livreurAccueil', { withCredentials: true })
-  //       .then(res => setCommande(res.data.commande));
-  //   });
-
-  //   socket.on("livreurStatusChange", ({ id, status }) => {
-  //     console.log(`🟢 Livreur ${id} est maintenant ${status}`);
-  //   });
-
-  //   socket.on("commandeAnnulee", (data) => {
-  //     console.log("❌ Commande annulée", data);
-  //     setCommande(null);
-  //   });
-
-
-  //   return () => {
-  //     socket.disconnect(); // ✅ Déconnexion propre
-  //   };
-  // }, []);
-
-
   useEffect(() => {
   socketRef.current = io('http://localhost:3000', {
     withCredentials: true,
@@ -154,14 +91,49 @@ const Dashboard = () => {
   });
 
 
-    socket.on("DeliveryValider", (data) => {
-    console.log("✅ DeliveryValider", data);
+
+    socket.on("deliveryCreated", (data) => {
+    console.log("✅ Delivery Creer", data);
     axios.get('http://localhost:3000/api/delivery/deliLivreur', { withCredentials: true })
-      .then(res => setCommande(res.data.delivery));
+      .then((res) => {
+          setCommande(res.data.commande || []);
+          setDelivery(res.data.delivery || []);
+        });
+  });
+
+  //   socket.on("CommandeTerminer", (data) => {
+  //   console.log("✅ CommandeTerminer", data);
+  //   axios.get('http://localhost:3000/api/delivery/deliLivreur', { withCredentials: true })
+  //     .then((res) => {
+  //         setDelivery(res.data.delivery || []);
+  //       });
+  // });
+
+  
+      socket.on("commandeConfirmed", (data) => {
+    console.log("✅ commandeConfirmed", data);
+    axios.get('http://localhost:3000/api/delivery/deliLivreur', { withCredentials: true })
+      .then((res) => {
+          setDelivery(res.data.delivery || []);
+        });
+  });
+
+
+        socket.on("DeliveryUpdadeTerminer", (data) => {
+    console.log("✅ DeliveryUpdadeTerminer", data);
+    axios.get('http://localhost:3000/api/delivery/deliLivreur', { withCredentials: true })
+      .then((res) => {
+          setDelivery(res.data.delivery);
+        });
   });
 
   socket.on("livreurStatusChange", ({ id, status }) => {
     console.log(`🟢 Livreur ${id} est maintenant ${status}`);
+  });
+
+
+    socket.on("disconnect", ({ id, status }) => {
+    console.log(`🟢 Livreur ${id} s'est tout a l'heure ${status}`);
   });
 
   socket.on("commandeAnnulee", (data) => {
@@ -290,16 +262,6 @@ useEffect(() => {
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  //PingServer
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     if (socketRef.current) {
-  //       socketRef.current.emit('pingServeur');
-  //     }
-  //   }, 10000);
-
-  //   return () => clearInterval(interval);
-  // }, []);
 
   //Effet de chargement de montant
     const handleTypeChange = (e) => {
@@ -338,7 +300,7 @@ useEffect(() => {
         <div className="dashboard-livreur">
           
 
-          {!commande || commande.statut_3 === 1 || commande.passation ==='Fini' || delivery.confirmation === 'fini' ? (
+          {!commande || commande.statut_3 === 1 || commande.passation ==='Fini' || (delivery && delivery.confirmation === 'fini') ? (
   <>
     
     <div className="alert alert-secondary">
@@ -476,7 +438,7 @@ useEffect(() => {
 
             // ✅ 3. Redirection
             setCommande(null);
-            window.location.href = "/livreur/pages/Dashboard";
+
 
           } catch (err) {
             console.error("Erreur lors de la finalisation de la commande", err);
@@ -586,7 +548,6 @@ useEffect(() => {
             );
 
             setCommande(null);
-            window.location.href = "/livreur/pages/Dashboard";
 
           } catch (err) {
             console.error("Erreur lors de la finalisation de la commande", err);
@@ -658,7 +619,6 @@ useEffect(() => {
 
             // ✅ 3. Redirection
             setCommande(null);
-            window.location.href = "/livreur/pages/Dashboard";
 
           } catch (err) {
             console.error("Erreur lors de la finalisation de la commande", err);
@@ -706,7 +666,6 @@ useEffect(() => {
             );
 
             setCommande(null);
-            window.location.href = "/livreur/pages/Dashboard";
 
           } catch (err) {
             console.error("Erreur lors de la finalisation de la commande", err);

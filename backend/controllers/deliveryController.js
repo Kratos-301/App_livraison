@@ -52,6 +52,31 @@ if (!client_id || !livreur_id || !commande_id || !choix || !prix || !confirm_cli
 };
 
 
+// exports.DeliveryClient = (req, res) => {
+//   const client = req.session.client;
+//   if (!client || !client.id) {
+//     return res.status(401).json({ success: false, message: 'Non authentifié' });
+//   }
+
+//   model.getDeliveryLivreur(client.id, (err, result) => {
+//      if (err) {
+//        console.error('Erreur BDD :', err);
+//        return res.status(500).json({ success: false, message: 'Erreur base de données' });
+//      }
+ 
+//      const deliverys = result.length > 0 ? result[0] : null;
+ 
+//      return res.json({
+//        success: true,
+//        client,
+//        deliverys,
+//        timestamp: Date.now()
+//      });
+//    });
+//  };
+
+
+
 exports.DeliveryClient = (req, res) => {
   const client = req.session.client;
   if (!client || !client.id) {
@@ -59,21 +84,24 @@ exports.DeliveryClient = (req, res) => {
   }
 
   model.getDeliveryLivreur(client.id, (err, result) => {
-     if (err) {
-       console.error('Erreur BDD :', err);
-       return res.status(500).json({ success: false, message: 'Erreur base de données' });
-     }
- 
-     const deliverys = result.length > 0 ? result[0] : null;
- 
-     return res.json({
-       success: true,
-       client,
-       deliverys,
-       timestamp: Date.now()
-     });
-   });
- };
+    if (err) {
+      console.error('Erreur BDD :', err);
+      return res.status(500).json({ success: false, message: 'Erreur base de données' });
+    }
+
+    // Toujours renvoyer un tableau
+    const deliverys = Array.isArray(result) ? result : [];
+
+    return res.json({
+      success: true,
+      client,
+      deliverys, // tableau toujours
+      timestamp: Date.now()
+    });
+  });
+};
+
+
 
 exports.DeliveryLivreur = (req, res) => {
   const livreur = req.session.livreur;
@@ -109,9 +137,9 @@ exports.DeliLivreur = (req, res) => {
 
     model.getDeliveryById(id, (err5, delivery) => {
       if (!err5 && delivery) {
-        io.emit('occupe', { livreurId: delivery.livreur_id });
-        io.to(`cmd_${id}`).emit('DeliveryValider', { id, type: 'DeliveryValider' });
-        io.emit('DeliveryValider', {
+        // io.emit('occupe', { livreurId: delivery.livreur_id });
+        io.to(`cmd_${id}`).emit('commandeConfirmed', { id, type: 'Confirmation' });
+        io.emit('commandeConfirmed', {
           id,
           client_id: delivery.client_id,
           livreur_id: delivery.livreur_id
@@ -133,9 +161,9 @@ exports.DeliLivreurTerminer = (req, res) => {
 
     model.getDeliveryById(id, (err5, delivery) => {
       if (!err5 && delivery) {
-        io.emit('occupe', { livreurId: delivery.livreur_id });
-        io.to(`cmd_${id}`).emit('DeliveryValider', { id, type: 'DeliveryValider' });
-        io.emit('DeliveryValider', {
+        // io.emit('occupe', { livreurId: delivery.livreur_id });
+        io.to(`cmd_${id}`).emit('DeliveryUpdadeTerminer', { id, type: 'DeliveryTerminer' });
+        io.emit('DeliveryUpdadeTerminer', {
           id,
           client_id: delivery.client_id,
           livreur_id: delivery.livreur_id
@@ -162,9 +190,9 @@ exports.DeliClient = (req, res) => {
 
     model.getDeliveryById(id, (err5, delivery) => {
       if (!err5 && delivery) {
-        io.emit('occupe', { livreurId: delivery.livreur_id });
-        io.to(`cmd_${id}`).emit('DeliveryValider', { id, type: 'DeliveryValider' });
-        io.emit('DeliveryValider', {
+        // io.emit('occupe', { livreurId: delivery.livreur_id });
+       io.to(`cmd_${id}`).emit('commandeConfirmed', { id, type: 'Confirmation' });
+        io.emit('commandeConfirmed', {
           id,
           client_id: delivery.client_id,
           livreur_id: delivery.livreur_id
@@ -192,7 +220,7 @@ exports.AnnulationDeliveryLivreur = (req, res) => {
         // 🟢 Notifier tous les clients que le livreur est libre
         io.emit('livreurStatusChange', {
           id: livreurId,
-          status: 'disponible'  // ou "disponible"
+          status: 'online'  // ou "disponible"
         });
 
         // 🔁 Notifier la room spécifique

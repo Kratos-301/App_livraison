@@ -25,7 +25,7 @@ router.post('/annulerClient/:id', ctrl.AnnulationDeliveryClient);
 
 
 
-//Reception des données depuis la BD
+//Reception des données depuis la BD sue l'ecran accueil
 router.get('/deliClient', ctrl.DeliveryClient);
 router.get('/deliLivreur', ctrl.DeliveryLivreur);
 
