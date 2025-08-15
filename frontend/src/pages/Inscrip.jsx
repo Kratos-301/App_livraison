@@ -27,6 +27,47 @@ const [livreurData, setLivreurData] = useState({
 
   const navigate = useNavigate();
 
+// Manipulation de input image
+  
+  const [preview, setPreview] = useState(null);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setLivreurData({ ...livreurData, pp: file });
+      setPreview(URL.createObjectURL(file));
+    }
+  };
+
+
+  // Message Erreur
+
+      const [message, setMessage] = useState("");
+      const [messageL, setMessageL] = useState("");
+
+
+
+          useEffect(() => {
+          if (message) {
+      const timer = setTimeout(() => {
+        setMessage("");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [message]);
+
+            useEffect(() => {
+          if (messageL) {
+      const timer = setTimeout(() => {
+        setMessageL("");
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [messageL]);
+
+
+  ////-------------------------/////
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setLivreurData({ ...livreurData, [name]: value });
@@ -54,9 +95,7 @@ const handleRegisterSubmitLivreur = async (e) => {
     navigate('/livreur/pages/Dashboard');
 
   } catch (err) {
-    const erreur = err.response?.data?.erreur || 'Erreur inconnue';
-    alert(erreur);
-    console.error('Erreur :', erreur);
+    setMessageL(err.response?.data?.message || "Erreur inconnue");
   }
 };
 
@@ -93,9 +132,7 @@ const handleRegisterSubmitClient = async (e) => {
     navigate('/client/pages/Accueil');
 
   } catch (err) {
-    const erreur = err.response?.data?.erreur || 'Erreur inconnue';
-    alert(erreur);
-    console.error('Erreur :', erreur);
+    setMessage(err.response?.data?.message || "Erreur inconnue");
   }
 };
 
@@ -113,10 +150,6 @@ const handleRegisterSubmitClient = async (e) => {
           </div>
         </div>
       </div>
-      <h2>
-        <span>B</span>ienvenue sur la page d'Inscription jjjbjjjjjjgjgjgjgjuug<br />
-        Merci <span>de bien remplir les</span> champs
-      </h2>
 
       <div className="giga">
         <div className="indic">
@@ -130,11 +163,11 @@ const handleRegisterSubmitClient = async (e) => {
             <div className="all-form">
               <div className="lpm">
                 <h1>Inscription Client</h1>
-                <form onSubmit={handleRegisterSubmitClient}>
+                <form className='lploki' onSubmit={handleRegisterSubmitClient}>
                   <div className="tgh">
                     <div className="meute">
                       <div className="btn1">
-                        <label htmlFor="client-nom">Nom</label>
+                        <label htmlFor="client-nom">Nom Complet <sup className='etoile'>*</sup> </label>
                         <i className="bi bi-person-fill"></i>
                         <input
                           type="text"
@@ -148,7 +181,7 @@ const handleRegisterSubmitClient = async (e) => {
                         />
                       </div>
                       <div className="btn1">
-                        <label htmlFor="client-telephone">Téléphone</label>
+                        <label htmlFor="client-telephone">Téléphone <sup className='etoile'>*</sup></label>
                         <i className="bi bi-telephone-fill"></i>
                         <input
                           type="tel"
@@ -180,7 +213,7 @@ const handleRegisterSubmitClient = async (e) => {
 
                     <div className="meute">
                       <div className="btn1">
-                        <label htmlFor="client-motdepasse">Mot de passe</label>
+                        <label htmlFor="client-motdepasse">Mot de passe <sup className='etoile'>*</sup></label>
                         <i className="bi bi-lock-fill"></i>
                         <input
                           type="password"
@@ -193,7 +226,7 @@ const handleRegisterSubmitClient = async (e) => {
                         />
                       </div>
                       <div className="btn1">
-                        <label htmlFor="client-confirmation">Confirmer le mot de passe</label>
+                        <label htmlFor="client-confirmation">Confirmer le mot de passe <sup className='etoile'>*</sup></label>
                         <i className="bi bi-lock-fill"></i>
                         <input
                           type="password"
@@ -205,6 +238,7 @@ const handleRegisterSubmitClient = async (e) => {
                           required
                         />
                       </div>
+                      {message && <p className='Message3rrorIsert'>{message}</p>}
                     </div>
 
                     <div className="btn2">
@@ -218,19 +252,25 @@ const handleRegisterSubmitClient = async (e) => {
 
           {/* Formulaire Livreur */}
           {userType === 'livreur' && (
-    <div className="all-form">
+    <div className="all-form djolo">
       <div className="lpm">
-        <h1>Inscription Livreur</h1>
-        <form onSubmit={handleRegisterSubmitLivreur}>
+        <h1>Pre-Inscription Livreur</h1>
+        <form className='lploki' onSubmit={handleRegisterSubmitLivreur}>
           <div className="tgh">
              <div className="btn">
-                <label htmlFor="livreur-tof">Profil</label>
-                <i className="bi bi-person-fill"></i>
+                      <label htmlFor="file-upload" className="custom-file-upload">
+        {preview ? (
+          <img src={preview} alt="Preview" className="preview-img" />
+        ) : (
+          <i className="fas fa-camera"></i>
+        )}
+      </label>
                 <input
                   type="file"
+                  id="file-upload"
                   name="pp"
                   accept="image/*"
-                  onChange={(e) => setLivreurData({ ...livreurData, pp: e.target.files[0] })}
+                  onChange={handleFileChange}
                 />
               </div>
             <div className="meute">
@@ -277,7 +317,7 @@ const handleRegisterSubmitClient = async (e) => {
               </div>
               <div className="btn1">
                 <label htmlFor="livreur-marque-moto">Identifiant de ma moto</label>
-                <i className="bi bi-envelope-fill"></i>
+                <i class="bi bi-person-badge"></i>
                 <input
                   type="text"
                   name="marque_moto"
@@ -335,15 +375,14 @@ const handleRegisterSubmitClient = async (e) => {
             <div className="btn2">
               <input type="submit" value="S'enregistrer" />
             </div>
+            {messageL && 
+              <p className='Message3rrorIsert'>{messageL}</p>
+            }
           </div>
         </form>
       </div>
     </div>
           )}
-
-          <main id="all-form2" className={`all-form2 ${userType}`}>
-            <h3>Je suis un {userType === 'client' ? 'client' : 'livreur'}</h3>
-          </main>
         </div>
       </div>
     </div>

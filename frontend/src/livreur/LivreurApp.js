@@ -1,8 +1,8 @@
 import React from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import Dashboard from './pages/Dashboard';
-import Livraison from './pages/Livraison';
-import Historique from './pages/Historique';
+import Parametres from './pages/Parametres';
+import Historique from './pages/Historiques';
 
 const LivreurApp = () => {
   return (
@@ -10,13 +10,13 @@ const LivreurApp = () => {
       <h1>Interface Livreur</h1>
       <nav>
         <Link to="dashboard">Dashboard</Link> |{' '}
-        <Link to="livraison">Livraisons</Link> |{' '}
-        <Link to="historique">Historique</Link>
+        <Link to="Parametres">Livraisons</Link> |{' '}
+        <Link to="historiques">Historique</Link>
       </nav>
       <Routes>
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="livraison" element={<Livraison />} />
-        <Route path="historique" element={<Historique />} />
+        <Route path="Parametres" element={<Parametres />} />
+        <Route path="historiques" element={<Historique />} />
       </Routes>
     </div>
   );

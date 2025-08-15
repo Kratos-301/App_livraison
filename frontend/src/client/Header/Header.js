@@ -1,9 +1,18 @@
 import React from 'react';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+
+
 import '../styles/barre.css'; // ou ajuste le chemin selon ta structure
 
 const Header = ({ client }) => {
+
+
+  const navigate = useNavigate();
+
+
+
   return (
     <>
       <div className="all-barre-verticale">
@@ -12,15 +21,33 @@ const Header = ({ client }) => {
             <div className="logo">
               <img src="/assets/logo/logo.png" alt="logo" />
             </div>
-            <div className="touche">
-              <ul className="haut-touche">
-                <li><a href="/commande/html/page/accueil">Dashboard</a></li>
-                <li><a href="/html/page/attente"><i className="bi bi-person"></i> Demande</a></li>
-                <li><a href="/html/page/historique"><i className="bi bi-person"></i> Historique</a></li>
-                <li><a href="/html/page/parametre"><i className="bi bi-gear"></i> Paramètre</a></li>
+            <div className="touches">
+              <ul className="haut-touches">
+                <li><Link to="/client/pages/Accueil">Dashboard</Link></li>
+                <li><Link to="/client/pages/Commande">Commande</Link></li>
+                <li><Link to="/client/pages/Historique">Historique</Link></li>
+                <li><Link to="/client/pages/Parametre">Parametre</Link></li>
               </ul>
-              <ul className="dead">
-                <li><a href="#"><i className="bi bi-box-arrow-right"></i> Déconnexion</a></li>
+              <ul className="deads">
+                <li>                
+                  <button
+                  onClick={() => {
+                    axios.get('http://localhost:3000/api/client/logoutClient', {
+  withCredentials: true,
+                      credentials: 'include',
+                    })
+                      .then(() => {
+                        window.location.href = '/'; // ou vers loginUser si besoin
+                      })
+                      .catch(err => {
+                        console.error("Erreur lors de la déconnexion", err);
+                      });
+                  }}
+                  className="btn btn-link text-danger"
+                >
+                  <i className="bi bi-box-arrow-right"></i> Déconnexion
+                </button>
+                </li>
               </ul>
             </div>
           </div>
@@ -49,11 +76,11 @@ const Header = ({ client }) => {
                 <button
                   onClick={() => {
                     axios.get('http://localhost:3000/api/client/logoutClient', {
-  withCredentials: true,
+                      withCredentials: true,
                       credentials: 'include',
                     })
                       .then(() => {
-                        window.location.href = '/'; // ou vers loginUser si besoin
+                        window.location.href = '/';
                       })
                       .catch(err => {
                         console.error("Erreur lors de la déconnexion", err);

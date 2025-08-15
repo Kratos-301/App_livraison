@@ -41,7 +41,7 @@ exports.getCommandesClient = (client_id, callback) => {
 
 exports.getLivreurs = (callback) => {
   const sql = `
-    SELECT l.id, l.nom, l.marque_moto, pp,
+    SELECT l.id, l.nom, l.marque_moto, l.pp, latitude_li, longitude_li,
       EXISTS (
         SELECT 1 FROM commande c
         WHERE c.livreur_id = l.id
@@ -56,7 +56,7 @@ exports.getLivreurs = (callback) => {
 
 exports.getCommandesLivreur = (livreur_id, callback) => {
   db.query(
-    `SELECT * FROM commande WHERE livreur_id = ? ORDER BY date_commande DESC LIMIT 10`,
+    `SELECT * FROM commande WHERE livreur_id = ? ORDER BY date_commande DESC LIMIT 1`,
     [livreur_id], callback
   );
 };

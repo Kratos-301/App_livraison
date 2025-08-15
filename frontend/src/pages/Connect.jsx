@@ -1,8 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
-import './styles/Connect.css';
 import { useNavigate } from 'react-router-dom';
+
+
+
+
+import './styles/Connect.css';
 
 
 
@@ -22,6 +26,26 @@ const Connect = () => {
     motdepasse: ''
   });
 
+    const [message, setMessage] = useState("");
+    const [messageL, setMessageL] = useState("");
+
+              useEffect(() => {
+              if (message) {
+          const timer = setTimeout(() => {
+            setMessage("");
+          }, 4000);
+          return () => clearTimeout(timer); // Nettoyage si le message change avant 4s
+        }
+      }, [message]);
+    
+                useEffect(() => {
+              if (messageL) {
+          const timer = setTimeout(() => {
+            setMessageL("");
+          }, 4000);
+          return () => clearTimeout(timer); // Nettoyage si le message change avant 4s
+        }
+      }, [messageL]);
 
   const handleClientSubmit = async (e) => {
     e.preventDefault();
@@ -32,7 +56,7 @@ const Connect = () => {
        console.log('✅ Client connecté :', res.data);
       navigate('/client/pages/Accueil');
     } catch (err) {
-      console.error('❌ Erreur client :', err.response?.data || err.message);
+      setMessage(err.response?.data?.message || "Erreur inconnue");
     }
   };
 
@@ -45,7 +69,7 @@ const Connect = () => {
       console.log('✅ Livreur connecté :', res.data);
       navigate('/livreur/pages/Dashboard');
     } catch (err) {
-      console.error('❌ Erreur livreur :', err.response?.data || err.message);
+      setMessageL(err.response?.data?.message || "Erreur inconnue");
     }
   };
 
@@ -103,6 +127,8 @@ const Connect = () => {
                           onChange={(e) => setClientData({ ...clientData, motdepasse: e.target.value })}
                           required
                         />
+                        {/* Message d'erreur ou succès */}
+    {message && <p style={{ color: "red" }}>{message}</p>}
                       </div>
                     </div>
                     <div className="btn2">
@@ -149,7 +175,10 @@ const Connect = () => {
                     </div>
                     <div className="btn2">
                       <input type="submit" value="Se connecter" />
+
                     </div>
+                    
+{messageL && <p style={{ color: "red" }}>{messageL}</p>}
                   </div>
                 </form>
               </div>

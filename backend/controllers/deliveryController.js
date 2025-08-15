@@ -75,12 +75,10 @@ if (!client_id || !livreur_id || !commande_id || !choix || !prix || !confirm_cli
 //    });
 //  };
 
-
-
 exports.DeliveryClient = (req, res) => {
   const client = req.session.client;
   if (!client || !client.id) {
-    return res.status(401).json({ success: false, message: 'Non authentifié' });
+    return res.status(401).json({ success: false, message: 'Non authentifié DeliveryClient' });
   }
 
   model.getDeliveryLivreur(client.id, (err, result) => {
@@ -101,12 +99,10 @@ exports.DeliveryClient = (req, res) => {
   });
 };
 
-
-
 exports.DeliveryLivreur = (req, res) => {
   const livreur = req.session.livreur;
   if (!livreur || !livreur.id) {
-    return res.status(401).json({ success: false, message: 'Non authentifié' });
+    return res.status(401).json({ success: false, message: 'Non authentifié DeliveryLivreur' });
   }
 
   model.getDeliveryLivreur(livreur.id, (err, result) => {
@@ -125,8 +121,6 @@ exports.DeliveryLivreur = (req, res) => {
      });
    });
  };
-
-
 
 exports.DeliLivreur = (req, res) => {
   const id = req.params.id;
@@ -151,7 +145,6 @@ exports.DeliLivreur = (req, res) => {
   });
 };
 
-
 exports.DeliLivreurTerminer = (req, res) => {
   const id = req.params.id;
   const data = req.body; 
@@ -174,7 +167,6 @@ exports.DeliLivreurTerminer = (req, res) => {
     return res.json({ success: true, message: 'Facturation enregistrée' });
   });
 };
-
 
 exports.DeliClient = (req, res) => {
     console.log("📥 Requête reçue :", req.params.id, req.body);
@@ -203,9 +195,6 @@ exports.DeliClient = (req, res) => {
     return res.json({ success: true, message: 'Facturation enregistrée' });
   });
 };
-
-
-
 
 exports.AnnulationDeliveryLivreur = (req, res) => {
   const id = req.params.id;
@@ -240,8 +229,6 @@ exports.AnnulationDeliveryLivreur = (req, res) => {
     });
   });
 };
-
-
 
 exports.AnnulationDeliveryClient = (req, res) => {
   const id = req.params.id;

@@ -78,7 +78,7 @@ function handleSocket(io) {
               const commandeId = results[0].id;
 
               // 3. Annuler la commande
-              const sqlUpdate = "UPDATE commande SET statut_2 = 1, statut_3 = 1 WHERE id = ?";
+              const sqlUpdate = "UPDATE commande SET statut_2 = 1, statut_3 = 1, disponibilite = 1 , passation = 'PasEncore' WHERE id = ?";
               db.query(sqlUpdate, [commandeId], (err) => {
                 if (err) {
                   console.error("❌ Erreur annulation commande :", err);

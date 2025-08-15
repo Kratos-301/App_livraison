@@ -68,12 +68,12 @@ const Header = ({ livreur }) => {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/livreur/pages/Historique">
+                  <Link to="/livreur/pages/Historiques">
                     <i className="bi bi-truck"></i> Historique
                   </Link>
                 </li>
                 <li>
-                  <Link to="/livreur/pages/Parametre">
+                  <Link to="/livreur/pages/Parametres">
                     <i className="bi bi-gear"></i> Paramètre
                   </Link>
                 </li>
@@ -98,7 +98,7 @@ const Header = ({ livreur }) => {
           </div>
           <div id="profil">
             <div id="conprofil">
-              <img src={`http://localhost:3000/uploads/livreurs/${livreur.photo}`} alt="Photo du livreur" />
+              <img src={`http://localhost:3000/uploads/livreurs/${livreur.photo}`} alt="Photo livreur" />
 
 
 

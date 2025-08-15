@@ -4,7 +4,9 @@ import React, { useEffect, useState, useMemo, useRef } from "react";
 import axios from "axios";
 import Header from "../Header/Header";
 import L from "leaflet";
+import "leaflet/dist/leaflet.css";
 import "leaflet-routing-machine";
+import "leaflet-routing-machine/dist/leaflet-routing-machine.css";
 import { io } from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 
@@ -21,7 +23,7 @@ const Accueil = () => {
   const [commandes, setCommandes] = useState([]);
   const [livreurs, setLivreurs] = useState([]);
   const [deliverys, setDeliverys] = useState([]);
-  const [distance, setDistance] = useState(null);
+
   const [startTime, setStartTime] = useState(null);
   const [position, setPosition] = useState(null);
   const [gpsError, setGpsError] = useState(false);
@@ -29,7 +31,21 @@ const Accueil = () => {
   const mapRef = useRef(null);
   const routingControlRef = useRef(null);
   const livreurMarkerRef = useRef(null);
+  const clientMarkerRef = useRef(null);
+
+const [coords, setCoords] = useState(null);
+const [distanceMeters, setDistanceMeters] = useState(0);
+const [followLivreur, setFollowLivreur] = useState(true);
+
+
   const socketRef = useRef(null);
+    const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 6.0; // ⚡ 2x plus rapide
+    }
+  }, []);
 
   //Websocket
 
@@ -164,22 +180,6 @@ const Accueil = () => {
   }, []);
 
 
-//Icon sur la map
-
-  const livreurIcon = L.icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
-  });
-
-  const clientIcon = L.icon({
-    iconUrl: "https://cdn-icons-png.flaticon.com/512/1077/1077012.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
-  });
-
   // A detruire
 
   const commandeEnCours = commandes.find(
@@ -225,73 +225,118 @@ const Accueil = () => {
     };
 
     updateGPS();
-    const interval = setInterval(updateGPS, 5000);
+    const interval = setInterval(updateGPS, 2000);
     return () => clearInterval(interval);
   }, []);
 
 
   //Initialisation de l'affichage de la carte
   
-  useEffect(() => {
-    if (!mapRef.current && position) {
-      const mapContainer = document.getElementById("map");
-      if (!mapContainer) return;
+// useEffect(() => {
+//   const livreurIcon = L.icon({
+//     iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+//     iconSize: [40, 40],
+//     iconAnchor: [20, 40],
+//     popupAnchor: [0, -40],
+//   });
 
-      const map = L.map("map").setView(
-        [position.latitude, position.longitude],
-        10
-      );
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "&copy; OpenStreetMap contributors",
-      }).addTo(map);
-      mapRef.current = map;
-    }
-  }, [position]);
+//   const clientIcon = L.icon({
+//     iconUrl: "https://cdn-icons-png.flaticon.com/512/1077/1077012.png",
+//     iconSize: [40, 40],
+//     iconAnchor: [20, 40],
+//     popupAnchor: [0, -40],
+//   });
 
-//Insertion des differents details dans la carte
+//   const interval = setInterval(() => {
+//     axios.get("http://localhost:3000/api/commande/accueil", { withCredentials: true })
+//       .then((res) => {
+//         const client = res.data.client;
+//         const livreur = res.data.livreurs?.[0];
+//         if (!client || !livreur) return;
 
-  useEffect(() => {
-    if (!commandeEnCours || !position || !mapRef.current) return;
+//         const newCoords = {
+//           livreur: { lat: livreur.latitude_li, lng: livreur.longitude_li },
+//           client: { lat: client.lati, lng: client.longi },
+//         };
 
-    const start = L.latLng(position.latitude, position.longitude);
-    const end = L.latLng(commandeEnCours.latitude, commandeEnCours.longitude);
+//         setCoords(newCoords);
 
-    if (!routingControlRef.current) {
-      routingControlRef.current = L.Routing.control({
-        waypoints: [start, end],
-        routeWhileDragging: false,
-        lineOptions: { styles: [{ color: "blue", weight: 5 }] },
-        addWaypoints: false,
-        createMarker: () => null,
-      }).addTo(mapRef.current);
+//         // Initialisation carte si nécessaire
+//         if (!mapRef.current) {
+//           const map = L.map("map").setView([newCoords.livreur.lat, newCoords.livreur.lng], 14);
 
-      routingControlRef.current.on("routesfound", (e) => {
-        const route = e.routes[0];
-        setDistance((route.summary.totalDistance / 1000).toFixed(2));
-      });
+//           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+//             attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+//           }).addTo(map);
 
-      if (!startTime) setStartTime(Date.now());
-    } else {
-      routingControlRef.current.setWaypoints([start, end]);
-    }
+//           // Marqueurs
+//           livreurMarkerRef.current = L.marker([newCoords.livreur.lat, newCoords.livreur.lng], { icon: livreurIcon }).addTo(map).bindPopup("Livreur");
+//           clientMarkerRef.current = L.marker([newCoords.client.lat, newCoords.client.lng], { icon: clientIcon }).addTo(map).bindPopup("Client");
 
-    if (!livreurMarkerRef.current) {
-      livreurMarkerRef.current = L.marker(start, { icon: livreurIcon })
-        .addTo(mapRef.current)
-        .bindPopup("📦 Livreur");
-    } else {
-      livreurMarkerRef.current.setLatLng(start);
-    }
+//           // Routage
+//           routingControlRef.current = L.Routing.control({
+//             waypoints: [
+//               L.latLng(newCoords.livreur.lat, newCoords.livreur.lng),
+//               L.latLng(newCoords.client.lat, newCoords.client.lng),
+//             ],
+//             routeWhileDragging: false,
+//             addWaypoints: false,
+//             createMarker: () => null,
+//             lineOptions: { styles: [{ color: "blue", weight: 5 }] },
+//           }).addTo(map);
 
-    if (!mapRef.current._clientMarker) {
-      const clientMarker = L.marker(end, { icon: clientIcon })
-        .addTo(mapRef.current)
-        .bindPopup("🧍‍♂️ Client");
-      mapRef.current._clientMarker = clientMarker;
-    }
+//           mapRef.current = map;
+//         } else {
+//           // Animation du marqueur livreur
+//           if (livreurMarkerRef.current) {
+//             const current = livreurMarkerRef.current.getLatLng();
+//             const target = L.latLng(newCoords.livreur.lat, newCoords.livreur.lng);
+//             const frames = 10;
+//             let i = 0;
+//             const deltaLat = (target.lat - current.lat) / frames;
+//             const deltaLng = (target.lng - current.lng) / frames;
+//             const anim = setInterval(() => {
+//               if (i >= frames) clearInterval(anim);
+//               else {
+//                 livreurMarkerRef.current.setLatLng([current.lat + deltaLat * i, current.lng + deltaLng * i]);
+//                 i++;
+//               }
+//             }, 50);
+//           }
 
-    mapRef.current.setView(start);
-  }, [commandeEnCours, position, startTime]);
+//           // Mise à jour client
+//           if (clientMarkerRef.current) {
+//             clientMarkerRef.current.setLatLng([newCoords.client.lat, newCoords.client.lng]);
+//           }
+
+//           // Mise à jour itinéraire
+//           if (routingControlRef.current) {
+//             routingControlRef.current.setWaypoints([
+//               L.latLng(newCoords.livreur.lat, newCoords.livreur.lng),
+//               L.latLng(newCoords.client.lat, newCoords.client.lng),
+//             ]);
+
+//             // Calcul distance
+//             routingControlRef.current.on("routesfound", (e) => {
+//               const route = e.routes[0];
+//               setDistanceMeters(route.summary.totalDistance);
+//             });
+//           }
+
+//           // Recentrage si suivi activé
+//           if (followLivreur && mapRef.current) {
+//             const group = L.featureGroup([livreurMarkerRef.current, clientMarkerRef.current]);
+//             mapRef.current.flyToBounds(group.getBounds().pad(0.05));
+//           }
+//         }
+
+//       })
+//       .catch((err) => console.error("Erreur récupération données :", err));
+//   }, 3000);
+
+//   return () => clearInterval(interval);
+// }, [followLivreur]);
+
 
 
 //Formulaire Invisible
@@ -306,8 +351,8 @@ const Accueil = () => {
           livreur_id: livreur.id,
           livreur_nom: livreur.nom,
           livreur_marque_moto: livreur.marque_moto,
-          latitude: pos.coords.latitude,
-          longitude: pos.coords.longitude,
+          latitude: pos.coords.latitude || client.lati,
+          longitude: pos.coords.longitude || client.longi,
           statut: "1",
           statut_2: "0",
           statut_3: "0",
@@ -358,13 +403,42 @@ const Accueil = () => {
       .catch(() => navigate("/"));
   }, [navigate]);
 
+  useEffect(() => {
+  console.log("Commandes reçues :", commandes);
+  console.log("Delivery reçu :", deliverys);
+}, [commandes, deliverys]);
+
+
+// Affichage distance dans la liste livreur
+const haversineKm = (lat1, lon1, lat2, lon2) => {
+  const toRad = (v) => (v * Math.PI) / 180;
+  const R = 6371; // rayon Terre en km
+  const φ1 = toRad(lat1);
+  const φ2 = toRad(lat2);
+  const Δφ = toRad(lat2 - lat1);
+  const Δλ = toRad(lon2 - lon1);
+
+  const a =
+    Math.sin(Δφ / 2) ** 2 +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+//------------------//
+
+
   if (!client) return null;
+
 
   return (
     <>
       <div className="mes-barre">
         <Header client={client} />
       </div>
+
+      
 
 <div className="main-content client" id="continer">
   {(() => {
@@ -382,6 +456,7 @@ const Accueil = () => {
       (cmd) => cmd.passation === "Engager"
     );
 
+    
     // Objet regroupant tous les états à utiliser
     const firstDelivery = deliverys[0] || {};
 
@@ -396,11 +471,10 @@ const status = {
   isDeliveryConfirmClientValider: firstDelivery.confirm_client === "Valider",
 };
 
-
     return (
       <>
         {/* Affichage formulaire si aucune commande en attente */}
-        {deliverys && !(
+        {firstDelivery && !(
           status.hasCommandeStatut1_0_0 ||
           status.hasCommandeStatut1_1_0 ||
           status.hasCommandePassationEngagerStatut222
@@ -412,49 +486,99 @@ const status = {
               </div>
             )}
             <h1>Bienvenue {client?.nom || "..."}</h1>
-            <div className="all-form" id="okjik">
-              <div id="zone-livreurs">
-                {livreurs.length === 0 ? (
-                  <div className="alert alert-warning text-center">
-                    🛑 Aucun livreur n’est actuellement en ligne.
-                  </div>
-                ) : (
-                  livreurs.map((livreur) => (
-                    <div
-                      key={livreur.id}
-                      className={`livreur-card ${
-                        livreur.est_occupe ? "occupe" : "disponible"
-                      }`}
-                    >
-                      <img
-                        src={`http://localhost:3000/uploads/livreurs/${livreur.pp}`}
-                        alt={`Profil de ${livreur.nom}`}
-                      />
-                      <span className="livreur-nom">{livreur.nom}</span>
-                      <span>{livreur.marque_moto}</span>
-                      <div className="commander">
-                        {livreur.est_occupe ? (
-                          <span className="statut" style={{ color: "red" }}>
-                            🔴 Occupé
-                          </span>
-                        ) : (
-                          <div className="affiju d-flex">
-                            <span className="statut" style={{ color: "green" }}>
-                              🟢
-                            </span>
-                            <input
-                              type="button"
-                              value="Commander"
-                              onClick={() => handleGeoSubmit(livreur)}
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+<div className="all-form" id="okjik">
+  <div id="zone-livreurs">
+    {livreurs.length === 0 ? (
+      <div className="alert alert-warning text-center">
+        🛑 Aucun livreur n’est actuellement en ligne.
+      </div>
+    ) : (
+      // On crée un tableau enrichi avec distance
+      [...livreurs]
+        .map((livreur) => {
+          const cLat = parseFloat(client?.lati);
+          const cLng = parseFloat(client?.longi);
+          const lLat = parseFloat(livreur?.latitude_li);
+          const lLng = parseFloat(livreur?.longitude_li);
+
+          const distanceKm =
+            Number.isFinite(cLat) && Number.isFinite(cLng) &&
+            Number.isFinite(lLat) && Number.isFinite(lLng)
+              ? haversineKm(cLat, cLng, lLat, lLng)
+              : null;
+
+          return { ...livreur, distanceKm };
+        })
+        // Tri par distance (null à la fin)
+        .sort((a, b) => {
+          if (a.distanceKm === null) return 1;
+          if (b.distanceKm === null) return -1;
+          return a.distanceKm - b.distanceKm;
+        })
+        .map((livreur, index) => (
+          <div
+            key={livreur.id}
+            className={`livreur-card ${
+              livreur.est_occupe ? "occupe" : "disponible"
+            }`}
+          >
+            <img
+              src={`http://localhost:3000/uploads/livreurs/${livreur.pp}`}
+              alt={`Profil de ${livreur.nom}`}
+            />
+            <span className="livreur-nom">{livreur.nom}</span>
+            <span>{livreur.marque_moto}</span>
+
+            {/* Distance */}
+            <span
+              className="distance-livreur"
+              id={`loli-${livreur.id}`} // id unique
+            >
+              {livreur.distanceKm === null
+                ? "—"
+                : `${livreur.distanceKm.toFixed(2)} km`}
+            </span>
+
+            {/* Badge pour le plus proche */}
+            {index === 0 && livreur.distanceKm !== null && (
+              <span
+                style={{
+                  background: "gold",
+                  padding: "2px 6px",
+                  borderRadius: "4px",
+                  fontWeight: "bold",
+                  marginLeft: "6px",
+                  fontSize: "0.8em",
+                }}
+              >
+                ⭐ Le plus proche
+              </span>
+            )}
+
+            <div className="commander">
+              {livreur.est_occupe ? (
+                <span className="statut" style={{ color: "red" }}>
+                  🔴 Occupé
+                </span>
+              ) : (
+                <div className="affiju d-flex">
+                  <span className="statut" style={{ color: "green" }}>
+                    🟢
+                  </span>
+                  <input
+                    type="button"
+                    value="Commander"
+                    onClick={() => handleGeoSubmit(livreur)}
+                  />
+                </div>
+              )}
             </div>
+          </div>
+        ))
+    )}
+  </div>
+</div>
+
           </>
         )}
 
@@ -462,14 +586,24 @@ const status = {
         {commandes.find(
           (cmd) => cmd.statut === 1 && cmd.statut_2 === 1 && cmd.statut_3 === 0
         ) && (
-          <div className="map-container">
-            <div id="map" style={{ height: "400px", marginTop: "20px" }}></div>
-            <p>Distance restante : {distance} km</p>
-            <p>
-              Temps écoulé :{" "}
-              {startTime ? Math.floor((Date.now() - startTime) / 1000) + "s" : "..."}
-            </p>
-            <p>
+          <div className="map-container"  >
+            <h3>Votre livreur est en cour de route, veillez ne pas trop vous eloignez de votre position actuelle</h3>
+            {/* <div id="map" style={{ height: "400px", marginTop: "20px" }}></div> */}
+           {/* <p>Distance restante : {(distanceMeters / 1000).toFixed(2)} km</p>
+  <button onClick={() => setFollowLivreur(true)}>🔄 Recentrer sur livreur & client</button> */}
+
+<div style={{ textAlign: "center" }}>
+      <video
+        ref={videoRef}
+        src="/videos/attente-client/attente-client.mp4"
+        autoPlay
+        loop
+        muted
+        playsInline
+        style={{ width: "80%", borderRadius: "10px" }}
+      />
+    </div>
+                <p>
               <button
                 className="btn btn-danger btn-sm"
                 onClick={async () => {
@@ -496,7 +630,9 @@ const status = {
                 Annuler
               </button>
             </p>
+
           </div>
+          
         )}
 
         {/* Liste des commandes en attente validation */}

@@ -34,6 +34,13 @@ const Dashboard = () => {
   const socketRef = useRef(null);
 
 
+    const clientMarkerRef = useRef(null);
+  
+  const [coords, setCoords] = useState(null);
+  const [distanceMeters, setDistanceMeters] = useState(0);
+  const [followLivreur, setFollowLivreur] = useState(true);
+
+
   useEffect(() => {
   socketRef.current = io('http://localhost:3000', {
     withCredentials: true,
@@ -200,7 +207,7 @@ useEffect(() => {
     const mapContainer = document.getElementById('map');
     if (!mapContainer) return; // 🛑 Sécurité pour éviter l'erreur
 
-    const map = L.map('map').setView([position.latitude, position.longitude], 14);
+    const map = L.map('map').setView([position.latitude, position.longitude], 12);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
@@ -250,8 +257,115 @@ useEffect(() => {
     }
 
     // Centrer sur livreur
-    mapRef.current.setView(start);
+    // mapRef.current.setView(start);
   }, [commande, position, startTime]);
+
+
+// useEffect(() => {
+//   const livreurIcon = L.icon({
+//     iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+//     iconSize: [40, 40],
+//     iconAnchor: [20, 40],
+//     popupAnchor: [0, -40],
+//   });
+
+//   const clientIcon = L.icon({
+//     iconUrl: "https://cdn-icons-png.flaticon.com/512/1077/1077012.png",
+//     iconSize: [40, 40],
+//     iconAnchor: [20, 40],
+//     popupAnchor: [0, -40],
+//   });
+
+//   const interval = setInterval(() => {
+//     axios.get("http://localhost:3000/api/commande/accueil", { withCredentials: true })
+//       .then((res) => {
+//         const client = res.data.client;
+//         const livreur = res.data.livreurs?.[0];
+//         if (client || !livreur) return;
+
+//         const newCoords = {
+//           livreur: { lat: livreur.lat, lng: livreur.long },
+//           client: { lat: commande.latitude, lng: commande.longitude },
+//         };
+
+//         setCoords(newCoords);
+
+//         // Initialisation carte si nécessaire
+//         if (!mapRef.current) {
+//           const map = L.map("map").setView([newCoords.livreur.lat, newCoords.livreur.lng], 14);
+
+//           L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+//             attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+//           }).addTo(map);
+
+//           // Marqueurs
+//           livreurMarkerRef.current = L.marker([newCoords.livreur.lat, newCoords.livreur.lng], { icon: livreurIcon }).addTo(map).bindPopup("Livreur");
+//           clientMarkerRef.current = L.marker([newCoords.client.lat, newCoords.client.lng], { icon: clientIcon }).addTo(map).bindPopup("Client");
+
+//           // Routage
+//           routingControlRef.current = L.Routing.control({
+//             waypoints: [
+//               L.latLng(newCoords.livreur.lat, newCoords.livreur.lng),
+//               L.latLng(newCoords.client.lat, newCoords.client.lng),
+//             ],
+//             routeWhileDragging: false,
+//             addWaypoints: false,
+//             createMarker: () => null,
+//             lineOptions: { styles: [{ color: "blue", weight: 5 }] },
+//           }).addTo(map);
+
+//           mapRef.current = map;
+//         } else {
+//           // Animation du marqueur livreur
+//           if (livreurMarkerRef.current) {
+//             const current = livreurMarkerRef.current.getLatLng();
+//             const target = L.latLng(newCoords.livreur.lat, newCoords.livreur.lng);
+//             const frames = 10;
+//             let i = 0;
+//             const deltaLat = (target.lat - current.lat) / frames;
+//             const deltaLng = (target.lng - current.lng) / frames;
+//             const anim = setInterval(() => {
+//               if (i >= frames) clearInterval(anim);
+//               else {
+//                 livreurMarkerRef.current.setLatLng([current.lat + deltaLat * i, current.lng + deltaLng * i]);
+//                 i++;
+//               }
+//             }, 50);
+//           }
+
+//           // Mise à jour client
+//           if (clientMarkerRef.current) {
+//             clientMarkerRef.current.setLatLng([newCoords.client.lat, newCoords.client.lng]);
+//           }
+
+//           // Mise à jour itinéraire
+//           if (routingControlRef.current) {
+//             routingControlRef.current.setWaypoints([
+//               L.latLng(newCoords.livreur.lat, newCoords.livreur.lng),
+//               L.latLng(newCoords.client.lat, newCoords.client.lng),
+//             ]);
+
+//             // Calcul distance
+//             routingControlRef.current.on("routesfound", (e) => {
+//               const route = e.routes[0];
+//               setDistanceMeters(route.summary.totalDistance);
+//             });
+//           }
+
+//           // Recentrage si suivi activé
+//           if (followLivreur && mapRef.current) {
+//             const group = L.featureGroup([livreurMarkerRef.current, clientMarkerRef.current]);
+//             mapRef.current.flyToBounds(group.getBounds().pad(0.05));
+//           }
+//         }
+
+//       })
+//       .catch((err) => console.error("Erreur récupération données :", err));
+//   }, 3000);
+
+//   return () => clearInterval(interval);
+// }, [followLivreur]);
+
 
 
   const getElapsedTime = () => {
@@ -282,8 +396,6 @@ useEffect(() => {
 
 
 
-
-
   if (!livreur) return null;
 
   return (
@@ -299,12 +411,24 @@ useEffect(() => {
 
         <div className="dashboard-livreur">
           
+         
 
-          {!commande || commande.statut_3 === 1 || commande.passation ==='Fini' || (delivery && delivery.confirmation === 'fini') ? (
+          {
+            !commande && !delivery && livreur.disponibilite !== 'Valider'  ? (
+                <>
+                  <h1>RDV au centre pour finaliser votre inscription</h1>
+  <p>Vous n'êtes pas éligible a la reception de commande </p>
+  <p>Les client ne vous veront pas des leurs listes jusqu'a la finalisation de votre inscription</p>
+                </>
+
+) :
+            
+
+          !commande || commande.statut_3 === 1 || commande.passation ==='Fini' || (delivery && delivery.confirmation === 'fini')? (
   <>
     
     <div className="alert alert-secondary">
-      <h2>Bonjour {livreur.nom}</h2><br /><br />
+      <h2>Bonjour {livreur.nom}</h2><br />
 
       Aucune demande de livraison en cours
       
@@ -372,7 +496,7 @@ useEffect(() => {
           ) : commande.statut === 1 && commande.statut_2 === 1 && commande.statut_3 === 0 ? (
             <>
               <h4>Livraison en cours</h4>
-              <div id="map" style={{ height: '400px', width: '100%' }}></div>
+              <div id="map" style={{ height: '400px', width: '500px' }}></div>
               <p className="mt-3">
                 📏 Distance restante : <strong>{distanceRestante ? `${distanceRestante} km` : 'Calcul...'}</strong><br />
                 ⏱ Temps écoulé : <strong>{getElapsedTime()}</strong>
@@ -457,7 +581,8 @@ useEffect(() => {
 
 
             </>
-          ) : null}
+          )
+           :  null}
 
 
   {/* ✅ Bloc "Delivery Initiale Livreur" */}

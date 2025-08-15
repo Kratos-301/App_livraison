@@ -304,39 +304,26 @@ exports.updatePosition = (req, res) => {
 
   const { latitude_li, longitude_li } = req.body;
 
-  // Trouver la commande en cours du livreur
-  const findCommandeSql = `
-    SELECT id FROM commande 
-    WHERE livreur_id = ? AND statut = 1 AND statut_2 = 1 AND statut_3 = 0 
-    ORDER BY date_commande DESC LIMIT 1
+  // Mise à jour des coordonnées dans la table clientuser
+  const updateLivreurUserSql = `
+    UPDATE livreuruser 
+    SET latitude_li = ?, longitude_li = ? 
+    WHERE id = ? AND nom = ?
   `;
 
-  db.query(findCommandeSql, [livreur.id], (err, result) => {
+  db.query(updateLivreurUserSql, [latitude_li, longitude_li, livreur.id, livreur.nom], (err, result) => {
     if (err) {
-      console.error("Erreur SQL recherche commande :", err);
-      return res.status(500).json({ success: false, message: 'Erreur BDD' });
+      console.error("Erreur SQL update clientuser :", err);
+      return res.status(500).json({ success: false, message: 'Erreur mise à jour position livreuruser' });
     }
 
-    if (result.length === 0) {
-      return res.status(404).json({ success: false, message: 'Aucune commande active trouvée' });
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'Livreur non trouvé dans clientuser' });
     }
 
-    const commandeId = result[0].id;
-
-    // Mise à jour des coordonnées
-    const updateSql = `
-      UPDATE commande 
-      SET latitude_li = ?, longitude_li = ? 
-      WHERE id = ?
-    `;
-
-    db.query(updateSql, [latitude_li, longitude_li, commandeId], (err) => {
-      if (err) {
-        console.error("Erreur SQL update :", err);
-        return res.status(500).json({ success: false, message: 'Erreur mise à jour position' });
-      }
-
-      return res.json({ success: true, message: 'Position mise à jour' });
+    return res.json({ 
+      success: true, 
+      message: 'Position GPS Livreur mise à jour dans Position-livreur-actuelle-refresh'
     });
   });
 };
