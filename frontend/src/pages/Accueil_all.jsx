@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import './styles/Accueil_all.css';
+import thyImage from './assets/img/thygujlokdded.png';
 
 const Accueil = () => {
   return (
@@ -25,7 +26,7 @@ const Accueil = () => {
           <h3> <span>D</span>abou <span>Livraison</span> Express</h3>
           <p> Est une entreprise dynamique spécialisée dans la livraison rapide et sécurisée de colis, documents et marchandises. <br /> Basée au cœur de la ville de Dabou, nous mettons un point d’honneur à offrir un service fiable et adapté aux besoins de nos clients.</p>
         </div>
-        <img src="/assets/img/thygujlokdded.png" alt="cecec" srcset="" />
+        <img src={thyImage} alt="cecec" srcset="" />
       </div>
 
       <div className="zone-part">
